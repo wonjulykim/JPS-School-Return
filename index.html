@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ㅡ<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -582,13 +582,13 @@
       <button id="btn-add-student" class="btn-blue">학생 계정 추가</button>
     </div>
     <div class="card">
-      <div class="card-title">📤 CSV 일괄 등록</div>
+      <div class="card-title">📤 엑셀/CSV 일괄 등록</div>
       <div class="csv-hint">
-        형식: <code>학년,반,번호,이름,아이디,비밀번호,전화번호</code><br>
-        예: <code>1,2,15,홍길동,hong15,pass1234,01012345678</code><br>
+        <strong>엑셀(.xlsx)</strong> 또는 <strong>CSV(.csv)</strong> 파일 모두 지원<br>
+        열 순서: <code>학년 · 반 · 번호 · 이름 · 아이디 · 비밀번호 · 전화번호</code><br>
         아이디·비밀번호·전화번호 생략 가능 — 비밀번호 생략 시 기본: <code>1234</code> / 아이디 생략 시 자동: <code>1-02-15</code>
       </div>
-      <input type="file" id="csv-student" accept=".csv,.txt">
+      <input type="file" id="csv-student" accept=".xlsx,.xls,.csv,.txt">
     </div>
     <div class="card">
       <div class="card-title">👥 학생 목록 <span class="count-badge" id="student-count">0명</span></div>
@@ -1474,12 +1474,23 @@
 
   async function handleStudentCSV(e){
     const file=e.target.files[0]; if(!file) return;
-    const text=await file.text();
-    const lines=text.split('\n').filter(l=>l.trim());
-    const start=isNaN(lines[0]?.split(',')[0]?.trim())?1:0;
+    const ext=file.name.split('.').pop().toLowerCase();
+    let rows=[];
+
+    if(ext==='xlsx'||ext==='xls'){
+      const buf=await file.arrayBuffer();
+      const wb=XLSX.read(buf,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    } else {
+      const text=await file.text();
+      rows=text.split('\n').filter(l=>l.trim()).map(l=>l.split(','));
+    }
+
+    const start=isNaN(String(rows[0]?.[0]).trim())?1:0;
     let count=0;
-    for(let i=start;i<lines.length;i++){
-      let[g,c,n,name,uid='',pw='',phone='']=lines[i].split(',').map(x=>x.trim());
+    for(let i=start;i<rows.length;i++){
+      let[g='',c='',n='',name='',uid='',pw='',phone='']=rows[i].map(x=>String(x??'').trim());
       if(!g||!c||!n||!name) continue;
       if(!pw) pw='1234';
       const grade=parseInt(g),cls=parseInt(c),number=parseInt(n);
@@ -1772,6 +1783,17 @@
     await loadStatus('a');
     alert('초기화 완료');
   }
+
+  // ─────────────────────────────────────────
+  // F5 / Ctrl+R 새로고침 방지 (로그인 상태)
+  // ─────────────────────────────────────────
+  window.addEventListener('keydown', e=>{
+    if(e.key==='F5' || (e.ctrlKey && e.key==='r') || (e.ctrlKey && e.key==='R')){
+      if(loadSession()){
+        e.preventDefault();
+      }
+    }
+  }, true);
 </script>
 </body>
 </html>
