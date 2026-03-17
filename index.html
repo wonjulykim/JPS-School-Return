@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>지평선중학교 귀교 확인</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', -apple-system, sans-serif; background: #f0f4f8; min-height: 100vh; color: #1a1a2e; }
+    .hidden { display: none !important; }
+
+    /* LOADING */
+    #loading { position: fixed; inset: 0; background: #1e3a5f; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .loading-box { text-align: center; color: white; }
+    .loading-box .spinner { font-size: 40px; animation: spin 1s linear infinite; display: inline-block; }
+    .loading-box p { margin-top: 16px; font-size: 16px; font-weight: 500; opacity: 0.8; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* LOGIN */
+    #view-login { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; background: linear-gradient(160deg, #1e3a5f 0%, #2d6a4f 100%); }
+    .login-logo  { font-size: 60px; margin-bottom: 12px; }
+    .login-school { color: rgba(255,255,255,0.7); font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .login-title  { color: white; font-size: 42px; font-weight: 900; margin-bottom: 4px; letter-spacing: -1px; }
+    .login-sub    { color: rgba(255,255,255,0.55); font-size: 14px; margin-bottom: 36px; }
+    .login-card { background: white; border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .login-card h3 { font-size: 16px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; }
+    .login-field { margin-bottom: 12px; }
+    .login-field label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 5px; }
+    .login-field input { width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: inherit; background: #f9f9f9; }
+    .login-field input:focus { outline: none; border-color: #1e3a5f; background: white; }
+    .remember-row { display: flex; align-items: center; margin: 6px 0 12px; }
+    .remember-row label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; cursor: pointer; }
+    .remember-row input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #1e3a5f; }
+    .btn-login-submit { width: 100%; padding: 16px; background: #1e3a5f; color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; letter-spacing: 1px; }
+    .btn-login-submit:active { background: #16304f; }
+    .login-error { color: #c0392b; font-size: 13px; font-weight: 600; margin-top: 10px; text-align: center; min-height: 18px; }
+
+    /* HEADER */
+    .app-header { background: #1e3a5f; color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .app-header h1 { font-size: 15px; font-weight: 700; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-user { font-size: 12px; color: rgba(255,255,255,0.7); }
+    .btn-logout { background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; font-family: inherit; }
+
+    /* STUDENT */
+    .student-body { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .student-card { background: white; border-radius: 22px; padding: 26px 20px; width: 100%; max-width: 480px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .s-avatar { width: 68px; height: 68px; background: linear-gradient(135deg, #1e3a5f, #2d6a4f); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px; }
+    .s-name { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+    .s-info { font-size: 15px; color: #666; }
+    .date-badge { background: #e8f4fd; border-radius: 14px; padding: 12px 18px; width: 100%; max-width: 480px; text-align: center; }
+    .date-badge .d-label { font-size: 11px; color: #2d6a4f; font-weight: 700; margin-bottom: 3px; }
+    .date-badge .d-date { font-size: 18px; font-weight: 900; color: #1e3a5f; }
+
+    /* 귀교 확인 폼 */
+    .confirm-form { background: white; border-radius: 20px; padding: 20px; width: 100%; max-width: 480px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .confirm-form .cf-title { font-size: 13px; font-weight: 700; color: #1e3a5f; margin-bottom: 12px; }
+    .check-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: #f5f7fa; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: background 0.15s; }
+    .check-item:hover { background: #e8f4fd; }
+    .check-item input[type=checkbox] { width: 22px; height: 22px; cursor: pointer; flex-shrink: 0; accent-color: #2d6a4f; }
+    .check-item label { font-size: 15px; font-weight: 600; cursor: pointer; flex: 1; }
+    .items-wrap { margin-bottom: 12px; }
+    .items-wrap label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 5px; }
+    .items-wrap input { width: 100%; padding: 11px 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-family: inherit; background: #f9f9f9; }
+    .items-wrap input:focus { outline: none; border-color: #1e3a5f; background: white; }
+    .btn-row { display: flex; gap: 10px; margin-top: 4px; }
+    .btn-confirm { background: linear-gradient(135deg, #2d6a4f, #40916c); color: white; border: none; border-radius: 16px; padding: 20px; font-size: 20px; font-weight: 900; cursor: pointer; flex: 2; letter-spacing: 2px; box-shadow: 0 6px 20px rgba(45,106,79,0.3); transition: transform 0.1s; font-family: inherit; }
+    .btn-confirm:active { transform: scale(0.97); }
+    .btn-confirm:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+    .btn-late-flag { background: linear-gradient(135deg, #e67e22, #f39c12); color: white; border: none; border-radius: 16px; padding: 20px 14px; font-size: 14px; font-weight: 700; cursor: pointer; flex: 1; box-shadow: 0 6px 20px rgba(230,126,34,0.25); transition: transform 0.1s; font-family: inherit; }
+    .btn-late-flag:active { transform: scale(0.97); }
+    .late-reason-box { background: #fff8f0; border: 2px solid #f39c12; border-radius: 14px; padding: 14px; margin-top: 10px; }
+    .late-reason-box .lr-label { font-size: 13px; font-weight: 700; color: #e67e22; margin-bottom: 8px; }
+    .late-reason-box textarea { width: 100%; padding: 10px; border: 2px solid #f39c12; border-radius: 8px; font-size: 14px; font-family: inherit; background: white; min-height: 72px; resize: vertical; }
+    .late-reason-box textarea:focus { outline: none; }
+    .btn-late-confirm { width: 100%; padding: 13px; background: #e67e22; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; font-family: inherit; }
+    .confirm-done { background: white; border-radius: 20px; padding: 26px 20px; width: 100%; max-width: 480px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .confirm-done.late { border: 3px solid #e67e22; }
+    .confirm-done.normal { border: 3px solid #2d6a4f; }
+    .cd-icon { font-size: 48px; margin-bottom: 10px; }
+    .cd-text { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+    .cd-text.green { color: #2d6a4f; }
+    .cd-text.orange { color: #e67e22; }
+    .cd-detail { font-size: 13px; color: #888; line-height: 1.6; }
+    .cd-tag { display: inline-block; background: #f5f7fa; border-radius: 6px; padding: 3px 8px; font-size: 12px; margin: 2px; color: #555; }
+    .btn-edit { margin-top: 14px; width: 100%; padding: 12px; background: white; color: #1e3a5f; border: 2px solid #1e3a5f; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-edit:active { background: #e8f0ff; }
+    /* 학생 날짜 선택 */
+    .s-date-card { background: white; border-radius: 16px; padding: 16px 18px; width: 100%; max-width: 480px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .s-date-card .d-label { font-size: 12px; color: #2d6a4f; font-weight: 700; margin-bottom: 8px; }
+    .s-date-card input[type=date] { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 17px; font-weight: 700; color: #1e3a5f; background: #f5f7fa; font-family: inherit; text-align: center; }
+    .s-date-card input[type=date]:focus { outline: none; border-color: #2d6a4f; background: white; }
+
+    /* TABS */
+    .view-tabs { display: flex; background: white; border-bottom: 2px solid #e8e8e8; position: sticky; top: 49px; z-index: 99; }
+    .view-tab { flex: 1; padding: 13px 4px; text-align: center; font-size: 12px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; white-space: nowrap; }
+    .view-tab.active { color: #1e3a5f; border-bottom-color: #1e3a5f; }
+
+    /* STATUS PANEL */
+    .status-body { padding: 14px; }
+    .card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .card-title { font-size: 13px; font-weight: 700; color: #1e3a5f; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 12px; }
+    .stat-box { background: #f5f7fa; border-radius: 12px; padding: 12px 6px; text-align: center; }
+    .stat-box .s-num { font-size: 26px; font-weight: 900; color: #1e3a5f; }
+    .stat-box.green .s-num { color: #2d6a4f; }
+    .stat-box.orange .s-num { color: #e67e22; }
+    .stat-box.red .s-num { color: #c0392b; }
+    .stat-box .s-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+    .grade-tabs { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; }
+    .grade-tab { padding: 8px 14px; border: 2px solid #e0e0e0; border-radius: 20px; background: white; font-size: 12px; font-weight: 700; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; transition: all 0.15s; }
+    .grade-tab.active { border-color: #2d6a4f; background: #2d6a4f; color: white; }
+    .filter-row { display: flex; gap: 5px; margin-bottom: 12px; }
+    .filter-btn { flex: 1; padding: 9px 2px; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 11px; font-weight: 600; color: #666; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .filter-btn.active { border-color: #1e3a5f; background: #1e3a5f; color: white; }
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: #f5f7fa; padding: 9px 4px; text-align: center; font-weight: 700; color: #555; white-space: nowrap; }
+    td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #f0f0f0; white-space: normal; word-break: break-word; max-width: 100px; }
+    tr:last-child td { border-bottom: none; }
+    .badge-ok     { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #d4edda; color: #155724; }
+    .badge-late   { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #fff3cd; color: #856404; }
+    .badge-no     { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #f8d7da; color: #721c24; }
+    .badge-absent { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #e8d5f5; color: #6a0dad; }
+
+    /* 상태별 행 강조 */
+    .row-late { background: #fffbf0; }
+    .row-miss { background: #fff5f5; }
+
+    /* 날짜 선택 인라인 */
+    .date-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .date-row label { font-size: 13px; font-weight: 700; color: #1e3a5f; white-space: nowrap; flex-shrink: 0; }
+    .date-row input[type=date] { flex: 1; min-width: 140px; max-width: 180px; padding: 10px 12px; }
+    .date-row .btn-refresh { flex-shrink: 0; white-space: nowrap; padding: 10px 16px; width: auto; background: #1e3a5f; color: white; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .date-row .btn-refresh:active { background: #16304f; }
+
+    /* 귀교 상태 선택 (3 버튼) */
+    .sc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .sc-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 6px; border: 2px solid #e0e0e0; border-radius: 14px; background: #f9f9f9; cursor: pointer; font-family: inherit; transition: all 0.15s; gap: 4px; }
+    .sc-btn:hover { border-color: #aaa; background: #f0f0f0; }
+    .sc-btn .sc-icon { font-size: 26px; }
+    .sc-btn .sc-label { font-size: 14px; font-weight: 700; color: #333; }
+    .sc-btn .sc-sub { font-size: 10px; color: #888; }
+    .sc-btn.active-ok     { border-color: #2d6a4f; background: #e8f5e9; }
+    .sc-btn.active-ok     .sc-label { color: #2d6a4f; }
+    .sc-btn.active-late   { border-color: #e67e22; background: #fff8f0; }
+    .sc-btn.active-late   .sc-label { color: #e67e22; }
+    .sc-btn.active-absent { border-color: #c0392b; background: #fff5f5; }
+    .sc-btn.active-absent .sc-label { color: #c0392b; }
+    .sc-panel { margin-top: 2px; }
+
+    /* Missing dashboard */
+    .miss-dash-title { font-size: 13px; font-weight: 700; color: #c0392b; margin-bottom: 10px; }
+    .miss-section-label { font-size: 13px; font-weight: 900; margin: 12px 0 8px; padding: 8px 12px; border-radius: 8px; }
+    .miss-grade-block { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .miss-grade-label { font-size: 12px; font-weight: 700; color: #1e3a5f; margin-bottom: 8px; }
+    .miss-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .miss-chip { border-radius: 10px; padding: 10px 14px; font-size: 12px; }
+    .miss-chip.absent { background: #fff0f0; border: 2px solid #f8d7da; }
+    .miss-chip.late   { background: #fffbf0; border: 2px solid #f5c36d; }
+    .miss-chip .chip-name { font-weight: 900; font-size: 14px; color: #1a1a2e; }
+    .miss-chip .chip-sub { color: #666; font-size: 11px; margin-top: 2px; }
+    .miss-chip .chip-reason { color: #c0392b; font-size: 11px; font-weight: 600; margin-top: 3px; }
+    .miss-chip .chip-late-reason { color: #e67e22; font-size: 11px; font-weight: 600; margin-top: 3px; }
+
+    .btn-reason { padding: 4px 8px; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; background: #fff3cd; color: #856404; font-family: inherit; white-space: nowrap; }
+    .btn-reason.has-reason { background: #fce4ec; color: #880e4f; }
+    .btn-call { display: inline-flex; align-items: center; justify-content: center; padding: 4px 7px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; background: #d4edda; color: #155724; text-decoration: none; font-family: inherit; }
+    .btn-call:hover { background: #b8ddc8; }
+    .eta-small { font-size: 10px; color: #e67e22; margin-top: 2px; }
+
+    /* 특이사항 */
+    .notes-row { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+    .notes-row:last-child { border-bottom: none; }
+    .notes-info { flex: 0 0 90px; }
+    .notes-info .ni-name { font-weight: 700; font-size: 13px; }
+    .notes-info .ni-sub { font-size: 11px; color: #888; }
+    .notes-content { flex: 1; font-size: 12px; color: #555; white-space: pre-wrap; word-break: break-all; }
+    .notes-content.empty { color: #bbb; font-style: italic; }
+    .btn-note-edit { flex-shrink: 0; padding: 5px 9px; border: 2px solid #1e3a5f; border-radius: 8px; background: white; color: #1e3a5f; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-note-edit:hover { background: #e8f0ff; }
+
+    /* FORMS */
+    .form-3col { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-bottom: 7px; }
+    .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+    .form-mb { margin-bottom: 7px; }
+    input[type=text], input[type=password], input[type=email], input[type=number],
+    input[type=tel], input[type=date], input[type=time], select, textarea {
+      width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;
+      font-size: 14px; color: #1a1a2e; background: #f9f9f9; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #1e3a5f; background: white; }
+    textarea { min-height: 80px; resize: vertical; }
+    .btn-blue { width: 100%; padding: 13px; background: #1e3a5f; color: white; border: none; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 4px; font-family: inherit; }
+    .btn-blue:active { background: #16304f; }
+    .btn-outline { width: 100%; padding: 12px; background: white; color: #1e3a5f; border: 2px solid #1e3a5f; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-red-outline { width: 100%; padding: 12px; background: white; color: #c0392b; border: 2px solid #c0392b; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 4px; }
+    .btn-xs { padding: 4px 9px; border: none; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-xs-red { background: #f8d7da; color: #721c24; }
+    .btn-xs-blue { background: #cce5ff; color: #004085; }
+    .count-badge { background: #1e3a5f; color: white; border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 600; margin-left: 4px; }
+    .csv-hint { font-size: 11px; color: #777; background: #f5f7fa; padding: 10px; border-radius: 8px; margin-bottom: 8px; line-height: 1.6; }
+    .csv-hint code { font-family: monospace; background: #e0e0e0; padding: 1px 4px; border-radius: 3px; font-size: 10px; }
+    .empty-row td { color: #aaa; padding: 20px 0; }
+    .bulk-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px 12px; background: #f5f7fa; border-radius: 10px; }
+    .bulk-bar label { font-size: 13px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .bulk-bar input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+    .btn-bulk-del { padding: 8px 14px; background: #c0392b; color: white; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; margin-left: auto; white-space: nowrap; }
+    .btn-bulk-del:disabled { background: #ccc; cursor: not-allowed; }
+    td input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal-box { background: white; border-radius: 20px; padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .modal-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .modal-student { font-size: 13px; color: #555; margin-bottom: 12px; padding: 8px 10px; background: #f5f7fa; border-radius: 8px; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 10px; }
+    .modal-btns button { flex: 1; }
+
+    /* ── 모바일 반응형 ── */
+    @media (max-width: 480px) {
+      /* 로그인 */
+      .login-title { font-size: 32px; }
+      .login-logo  { font-size: 48px; }
+      .login-card  { padding: 20px 16px; }
+
+      /* 헤더 */
+      .app-header h1 { font-size: 13px; }
+      .header-user   { display: none; }
+      .btn-logout    { padding: 6px 10px; font-size: 12px; }
+
+      /* 학생 카드 */
+      .student-body  { padding: 12px; gap: 10px; }
+      .student-card  { padding: 20px 14px; }
+      .s-name        { font-size: 20px; }
+      .s-avatar      { width: 56px; height: 56px; font-size: 24px; }
+
+      /* 귀교 선택 3버튼 */
+      .sc-btn        { padding: 12px 4px; border-radius: 12px; }
+      .sc-btn .sc-icon  { font-size: 22px; }
+      .sc-btn .sc-label { font-size: 13px; }
+      .sc-btn .sc-sub   { display: none; }
+
+      /* 확인 완료 카드 */
+      .confirm-done  { padding: 20px 14px; }
+      .cd-icon       { font-size: 40px; }
+      .cd-text       { font-size: 18px; }
+
+      /* 탭 */
+      .view-tab      { font-size: 11px; padding: 11px 2px; }
+
+      /* 상태 패널 */
+      .status-body   { padding: 10px; }
+      .card          { padding: 12px 10px; }
+      .stats-grid    { grid-template-columns: repeat(2,1fr); gap: 6px; }
+      .stat-box .s-num { font-size: 22px; }
+
+      /* 날짜 행 */
+      .date-row      { flex-wrap: wrap; gap: 6px; }
+      .date-row input[type=date] { min-width: 0; flex: 1 1 130px; font-size: 14px; padding: 8px 10px; }
+      .date-row .btn-refresh { padding: 8px 12px; font-size: 12px; }
+
+      /* 학년 탭 */
+      .grade-tab     { padding: 7px 11px; font-size: 11px; }
+
+      /* 필터 버튼 */
+      .filter-btn    { padding: 8px 1px; font-size: 10px; }
+
+      /* 상태 테이블 — 기타 열 숨김, 글씨 축소 */
+      table          { font-size: 11px; }
+      th, td         { padding: 7px 3px; }
+      .th-items, .td-items { display: none; }   /* 기타 열 숨김 */
+      .badge-ok, .badge-late, .badge-no, .badge-absent { font-size: 9px; padding: 2px 5px; }
+
+      /* 미귀교 대시보드 칩 */
+      .miss-chip     { padding: 8px 10px; }
+      .miss-chip .chip-name { font-size: 13px; }
+      .miss-chips    { gap: 5px; }
+
+      /* 폼 그리드 */
+      .form-3col     { grid-template-columns: 1fr 1fr; }
+      .form-2col     { grid-template-columns: 1fr; }
+
+      /* 모달 */
+      .modal-overlay { padding: 12px; }
+      .modal-box     { padding: 18px 14px; border-radius: 16px; }
+      .modal-btns    { flex-wrap: wrap; }
+      .modal-btns button { min-width: calc(50% - 4px); }
+
+      /* 특이사항 */
+      .notes-info    { flex: 0 0 72px; }
+      .notes-info .ni-name { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 로딩 -->
+<div id="loading">
+  <div class="loading-box"><div class="spinner">⏳</div><p>로딩 중...</p></div>
+</div>
+
+<!-- 로그인 -->
+<div id="view-login" class="hidden">
+  <div class="login-logo">🏫</div>
+  <p class="login-school">지평선중학교</p>
+  <h1 class="login-title">귀교 확인</h1>
+  <p class="login-sub">매주 일요일 귀교 확인 시스템</p>
+  <div class="login-card">
+    <h3>🔐 로그인</h3>
+    <div class="login-field">
+      <label>아이디</label>
+      <input type="text" id="login-id" placeholder="아이디 입력" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>비밀번호</label>
+      <input type="password" id="login-pw" placeholder="비밀번호 입력" autocomplete="current-password">
+    </div>
+    <div class="remember-row">
+      <label><input type="checkbox" id="chk-remember"> 아이디·비밀번호 저장</label>
+    </div>
+    <button id="btn-login" class="btn-login-submit">로그인</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- 학생 화면 -->
+<div id="view-student" class="hidden">
+  <div class="app-header">
+    <h1>🏫 귀교 확인</h1>
+    <div class="header-right">
+      <span class="header-user" id="s-header-user"></span>
+      <button class="btn-logout" onclick="openStudentSelfEdit()" style="background:rgba(255,255,255,0.25)">👤 내 정보</button>
+      <button class="btn-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+  <div class="student-body">
+    <div class="student-card">
+      <div class="s-avatar">👤</div>
+      <div class="s-name" id="s-name">-</div>
+      <div class="s-info" id="s-info">-</div>
+    </div>
+    <!-- 날짜 선택 -->
+    <div class="s-date-card">
+      <div class="d-label">📅 귀교 확인 날짜 선택</div>
+      <input type="date" id="s-date-input">
+    </div>
+
+    <!-- 귀교 입력 폼 (미확인 상태) -->
+    <div id="confirm-form-wrap" class="confirm-form hidden">
+      <div class="cf-title">📋 귀교 상태를 선택해주세요</div>
+
+      <!-- 3가지 상태 선택 버튼 -->
+      <div class="sc-row">
+        <button class="sc-btn" id="choice-ok">
+          <div class="sc-icon">🏫</div>
+          <div class="sc-label">귀교</div>
+          <div class="sc-sub">제시간 귀교</div>
+        </button>
+        <button class="sc-btn" id="choice-late">
+          <div class="sc-icon">⏰</div>
+          <div class="sc-label">지각</div>
+          <div class="sc-sub">늦게 귀교</div>
+        </button>
+        <button class="sc-btn" id="choice-absent">
+          <div class="sc-icon">🏠</div>
+          <div class="sc-label">미귀교</div>
+          <div class="sc-sub">귀교 안 함</div>
+        </button>
+      </div>
+
+      <!-- 귀교 패널 -->
+      <div id="panel-ok" class="sc-panel hidden">
+        <div class="check-item">
+          <input type="checkbox" id="chk-phone">
+          <label for="chk-phone">📱 핸드폰 반납 완료</label>
+        </div>
+        <div class="items-wrap">
+          <label>📦 기타 맡긴 물건 (선택)</label>
+          <input type="text" id="input-items" placeholder="예: 보조배터리, 책 등">
+        </div>
+        <button id="btn-confirm" class="btn-confirm" style="margin-top:8px;display:block;margin-left:auto;margin-right:auto">귀교</button>
+      </div>
+
+      <!-- 지각 패널 -->
+      <div id="panel-late" class="sc-panel hidden">
+        <div class="late-reason-box" style="margin-top:0">
+          <div class="lr-label">⏰ 지각 사유 (필수)</div>
+          <textarea id="late-reason-input" placeholder="지각 사유를 입력하세요 (예: 차량 지연, 가족사정 등)"></textarea>
+          <div class="items-wrap" style="margin-top:8px">
+            <label style="color:#e67e22">🕐 예상 도착 시간 (선택)</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select id="late-eta-hour" style="flex:1">
+                <option value="12">12시</option><option value="13">13시</option>
+                <option value="14">14시</option><option value="15">15시</option>
+                <option value="16">16시</option><option value="17">17시</option>
+                <option value="18">18시</option><option value="19">19시</option>
+                <option value="20">20시</option><option value="21">21시</option>
+                <option value="22">22시</option><option value="23">23시</option>
+                <option value="24">24시</option>
+              </select>
+              <span style="font-size:16px;font-weight:900;color:#e67e22;flex-shrink:0">:</span>
+              <select id="late-eta-min" style="flex:1">
+                <option value="00">00분</option><option value="05">05분</option>
+                <option value="10">10분</option><option value="15">15분</option>
+                <option value="20">20분</option><option value="25">25분</option>
+                <option value="30">30분</option><option value="35">35분</option>
+                <option value="40">40분</option><option value="45">45분</option>
+                <option value="50">50분</option><option value="55">55분</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button id="btn-late-confirm" class="btn-late-confirm" style="margin-top:8px;display:block;margin-left:auto;margin-right:auto">지각</button>
+      </div>
+
+      <!-- 미귀교 패널 -->
+      <div id="panel-absent" class="sc-panel hidden">
+        <div class="late-reason-box" style="border-color:#c0392b;background:#fff5f5">
+          <div class="lr-label" style="color:#c0392b">🏠 미귀교 사유 (필수)</div>
+          <textarea id="absent-reason-input" placeholder="미귀교 사유를 입력하세요 (예: 가족여행, 병원 방문 등)"></textarea>
+        </div>
+        <button id="btn-absent-confirm" class="btn-confirm" style="margin-top:8px;background:linear-gradient(135deg,#c0392b,#e74c3c);box-shadow:0 6px 20px rgba(192,57,43,0.3);display:block;margin-left:auto;margin-right:auto">미귀교</button>
+      </div>
+    </div>
+
+    <!-- 확인 완료 -->
+    <div id="confirm-done" class="confirm-done hidden">
+      <div class="cd-icon" id="cd-icon">✅</div>
+      <div class="cd-text" id="cd-text">귀교 확인 완료!</div>
+      <div class="cd-detail" id="cd-detail"></div>
+      <button id="btn-edit-confirm" class="btn-edit">✏️ 수정하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 교사 화면 -->
+<div id="view-teacher" class="hidden">
+  <div class="app-header">
+    <h1>👩‍🏫 교사 — 귀교 확인</h1>
+    <div class="header-right">
+      <span class="header-user" id="t-header-user"></span>
+      <button class="btn-logout" onclick="openTeacherSelfEdit()" style="background:rgba(255,255,255,0.25)">👤 내 정보</button>
+      <button class="btn-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+  <div class="view-tabs">
+    <div class="view-tab active" data-ttab="t-status">📊 귀교 현황</div>
+    <div class="view-tab" data-ttab="t-notes">📝 특이사항</div>
+  </div>
+
+  <!-- 귀교 현황 탭 -->
+  <div id="tab-t-status" class="status-body">
+    <div class="card" style="padding:12px 16px;margin-bottom:10px">
+      <div class="date-row">
+        <label>📅 날짜 선택</label>
+        <input type="date" id="t-date">
+        <button id="t-btn-refresh" class="btn-refresh">🔄 불러오기</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="s-num" id="t-stat-total">0</div><div class="s-lbl">전체</div></div>
+      <div class="stat-box green"><div class="s-num" id="t-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
+      <div class="stat-box orange"><div class="s-num" id="t-stat-late">0</div><div class="s-lbl">늦음</div></div>
+      <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미귀교</div></div>
+    </div>
+    <div class="grade-tabs" id="t-grade-tabs">
+      <button class="grade-tab active" data-grade="0">전체</button>
+      <button class="grade-tab" data-grade="1">1학년</button>
+      <button class="grade-tab" data-grade="2">2학년</button>
+      <button class="grade-tab" data-grade="3">3학년</button>
+    </div>
+    <div class="filter-row" id="t-filter-row">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="ok">귀교</button>
+      <button class="filter-btn" data-filter="late">늦음</button>
+      <button class="filter-btn" data-filter="miss">미귀교</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
+          <tbody id="t-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="t-miss-dashboard"></div>
+    <button onclick="window._downloadExcel('t')" class="btn-outline" style="margin-top:8px">📥 엑셀 다운로드</button>
+  </div>
+
+  <!-- 특이사항 탭 -->
+  <div id="tab-t-notes" class="status-body hidden">
+    <div class="card">
+      <div class="card-title">🔍 학생 검색 후 특이사항 추가</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" id="notes-search-input" placeholder="이름, 학번, 아이디 검색..." style="flex:1">
+        <button onclick="window._searchNote()" style="flex-shrink:0;padding:11px 14px;background:#1e3a5f;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🔍 검색</button>
+      </div>
+      <div id="notes-search-results" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 특이사항 기록 <span style="font-size:11px;color:#888;font-weight:400">(기록이 있는 학생만 표시됩니다)</span></div>
+      <div id="t-notes-list"><div style="color:#aaa;text-align:center;padding:20px">특이사항 탭을 클릭하면 불러옵니다</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 화면 -->
+<div id="view-admin" class="hidden">
+  <div class="app-header">
+    <h1>⚙️ 관리자 — 지평선중</h1>
+    <div class="header-right">
+      <button class="btn-logout" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+  <div class="view-tabs">
+    <div class="view-tab active" data-tab="a-status">📊 귀교 현황</div>
+    <div class="view-tab" data-tab="a-students">👥 학생 계정</div>
+    <div class="view-tab" data-tab="a-teachers">👩‍🏫 교사 계정</div>
+  </div>
+
+  <!-- 귀교 현황 탭 -->
+  <div id="tab-a-status" class="status-body">
+    <div class="card" style="padding:12px 16px;margin-bottom:10px">
+      <div class="date-row">
+        <label>📅 날짜 선택</label>
+        <input type="date" id="a-date">
+        <button id="a-btn-refresh" class="btn-refresh">🔄 불러오기</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="s-num" id="a-stat-total">0</div><div class="s-lbl">전체</div></div>
+      <div class="stat-box green"><div class="s-num" id="a-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
+      <div class="stat-box orange"><div class="s-num" id="a-stat-late">0</div><div class="s-lbl">늦음</div></div>
+      <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미귀교</div></div>
+    </div>
+    <div class="grade-tabs" id="a-grade-tabs">
+      <button class="grade-tab active" data-grade="0">전체</button>
+      <button class="grade-tab" data-grade="1">1학년</button>
+      <button class="grade-tab" data-grade="2">2학년</button>
+      <button class="grade-tab" data-grade="3">3학년</button>
+    </div>
+    <div class="filter-row" id="a-filter-row">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="ok">귀교</button>
+      <button class="filter-btn" data-filter="late">늦음</button>
+      <button class="filter-btn" data-filter="miss">미귀교</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
+          <tbody id="a-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="a-miss-dashboard"></div>
+    <button onclick="window._downloadExcel('a')" class="btn-outline" style="margin-top:8px;margin-bottom:6px">📥 엑셀 다운로드</button>
+    <button id="a-btn-reset" class="btn-red-outline">🗑️ 해당 날짜 확인 기록 초기화</button>
+  </div>
+
+  <!-- 학생 계정 탭 -->
+  <div id="tab-a-students" class="status-body hidden">
+    <div class="card">
+      <div class="card-title">➕ 학생 계정 추가</div>
+      <div class="form-3col">
+        <select id="add-grade"><option value="">학년</option><option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option></select>
+        <select id="add-class"><option value="">반</option><option value="1">1반</option><option value="2">2반</option><option value="3">3반</option><option value="4">4반</option><option value="5">5반</option><option value="6">6반</option></select>
+        <input type="number" id="add-number" placeholder="번호" min="1" max="50">
+      </div>
+      <div class="form-2col">
+        <input type="text" id="add-name" placeholder="이름 (필수)">
+        <input type="text" id="add-uid" placeholder="아이디 (자동생성)">
+      </div>
+      <div class="form-mb">
+        <input type="password" id="add-pw" placeholder="비밀번호 (기본: 1234)" value="1234">
+      </div>
+      <div class="form-mb">
+        <input type="tel" id="add-phone" placeholder="전화번호 (선택, 예: 01012345678)">
+      </div>
+      <button id="btn-add-student" class="btn-blue">학생 계정 추가</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📤 CSV 일괄 등록</div>
+      <div class="csv-hint">
+        형식: <code>학년,반,번호,이름,아이디,비밀번호,전화번호</code><br>
+        예: <code>1,2,15,홍길동,hong15,pass1234,01012345678</code><br>
+        아이디·비밀번호·전화번호 생략 가능 — 비밀번호 생략 시 기본: <code>1234</code> / 아이디 생략 시 자동: <code>1-02-15</code>
+      </div>
+      <input type="file" id="csv-student" accept=".csv,.txt">
+    </div>
+    <div class="card">
+      <div class="card-title">👥 학생 목록 <span class="count-badge" id="student-count">0명</span></div>
+      <div class="bulk-bar">
+        <label><input type="checkbox" id="chk-all-students"> 전체 선택</label>
+        <button class="btn-bulk-del" id="btn-bulk-del-students" disabled>선택 삭제 (0)</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>아이디</th><th>전화번호</th><th></th><th></th></tr></thead>
+          <tbody id="students-tbody"><tr class="empty-row"><td colspan="9">등록된 학생이 없습니다</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 교사 계정 탭 -->
+  <div id="tab-a-teachers" class="status-body hidden">
+    <div class="card">
+      <div class="card-title">➕ 교사 계정 추가</div>
+      <div class="form-2col">
+        <input type="text" id="add-teacher-name" placeholder="선생님 이름">
+        <input type="text" id="add-teacher-uid" placeholder="아이디">
+      </div>
+      <div class="form-mb">
+        <input type="password" id="add-teacher-pw" placeholder="비밀번호 (기본: 1234)" value="1234">
+      </div>
+      <button id="btn-add-teacher" class="btn-blue">교사 계정 추가</button>
+    </div>
+    <div class="card">
+      <div class="card-title">👩‍🏫 교사 목록 <span class="count-badge" id="teacher-count">0명</span></div>
+      <div class="bulk-bar">
+        <label><input type="checkbox" id="chk-all-teachers"> 전체 선택</label>
+        <button class="btn-bulk-del" id="btn-bulk-del-teachers" disabled>선택 삭제 (0)</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>이름</th><th>아이디</th><th></th><th></th></tr></thead>
+          <tbody id="teachers-tbody"><tr class="empty-row"><td colspan="5">등록된 교사가 없습니다</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 교사 정보 수정 모달 -->
+<div id="edit-teacher-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>✏️ 교사 정보 수정</h3>
+    <div class="modal-student" id="edit-teacher-modal-uid"></div>
+    <div class="form-mb"><input type="text" id="edit-teacher-edit-name" placeholder="이름 (필수)"></div>
+    <div class="form-mb"><input type="password" id="edit-teacher-new-pw" placeholder="새 비밀번호 (변경 시에만 입력)"></div>
+    <div class="modal-btns">
+      <button id="btn-edit-teacher-cancel" class="btn-outline">취소</button>
+      <button id="btn-edit-teacher-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 학생 정보 수정 모달 -->
+<div id="edit-student-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>✏️ 학생 정보 수정</h3>
+    <div class="modal-student" id="edit-modal-uid"></div>
+    <div class="form-3col">
+      <select id="edit-grade">
+        <option value="1">1학년</option><option value="2">2학년</option><option value="3">3학년</option>
+      </select>
+      <select id="edit-class">
+        <option value="1">1반</option><option value="2">2반</option><option value="3">3반</option>
+        <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
+      </select>
+      <input type="number" id="edit-number" placeholder="번호" min="1" max="50">
+    </div>
+    <div class="form-mb"><input type="text" id="edit-name" placeholder="이름"></div>
+    <div class="form-mb"><input type="tel" id="edit-phone" placeholder="전화번호 (선택)"></div>
+    <div class="form-mb"><input type="password" id="edit-new-pw" placeholder="새 비밀번호 (변경 시에만 입력)"></div>
+    <div class="modal-btns">
+      <button id="btn-edit-stu-cancel" class="btn-outline">취소</button>
+      <button id="btn-edit-stu-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 특이사항 편집 모달 -->
+<div id="notes-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>📝 특이사항 편집</h3>
+    <div class="modal-student" id="notes-modal-student">-</div>
+    <textarea id="notes-modal-text" placeholder="특이사항을 입력하세요&#10;(예: 알레르기 주의, 정기 통원, 귀가 시 보호자 동반 필요 등)" style="min-height:120px"></textarea>
+    <div class="modal-btns">
+      <button id="btn-notes-delete" style="flex:0 0 auto;padding:12px 14px;background:white;color:#c0392b;border:2px solid #c0392b;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">삭제</button>
+      <button id="btn-notes-cancel" class="btn-outline">취소</button>
+      <button id="btn-notes-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 학생 자신 정보 수정 모달 -->
+<div id="student-self-edit-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>👤 내 정보 수정</h3>
+    <div class="modal-student" id="student-self-edit-info"></div>
+    <div class="form-mb"><input type="tel" id="self-edit-phone" placeholder="전화번호 (선택, 예: 01012345678)"></div>
+    <div class="form-mb"><input type="password" id="self-edit-current-pw" placeholder="현재 비밀번호 (필수)"></div>
+    <div class="form-mb"><input type="password" id="self-edit-new-pw" placeholder="새 비밀번호 (변경 시에만 입력)"></div>
+    <div class="modal-btns">
+      <button id="btn-self-edit-cancel" class="btn-outline">취소</button>
+      <button id="btn-self-edit-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 교사 자신 정보 수정 모달 -->
+<div id="teacher-self-edit-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>👩‍🏫 내 정보 수정</h3>
+    <div class="modal-student" id="teacher-self-edit-info"></div>
+    <div class="form-mb"><input type="text" id="t-self-edit-name" placeholder="이름 (필수)"></div>
+    <div class="form-mb"><input type="password" id="t-self-edit-current-pw" placeholder="현재 비밀번호 (필수)"></div>
+    <div class="form-mb"><input type="password" id="t-self-edit-new-pw" placeholder="새 비밀번호 (변경 시에만 입력)"></div>
+    <div class="modal-btns">
+      <button id="btn-t-self-edit-cancel" class="btn-outline">취소</button>
+      <button id="btn-t-self-edit-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 미귀교 사유 모달 -->
+<div id="reason-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>📝 미귀교 사유 입력</h3>
+    <div class="modal-student" id="modal-student-info">-</div>
+    <textarea id="reason-text" placeholder="사유를 입력하세요 (예: 가족여행, 병원, 조퇴 등)"></textarea>
+    <div class="modal-btns">
+      <button id="btn-modal-delete" style="background:#fff;color:#c0392b;border:2px solid #c0392b;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">삭제</button>
+      <button id="btn-modal-cancel" class="btn-outline">취소</button>
+      <button id="btn-modal-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, getDocs,
+           updateDoc, deleteDoc, query, where, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  // ─────────────────────────────────────────
+  // CONFIG
+  // ─────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAM6vUycQeEyKKyu3vRa9Jt1bqRztlMSdo",
+    authDomain:        "jipyeongseon-return.firebaseapp.com",
+    projectId:         "jipyeongseon-return",
+    storageBucket:     "jipyeongseon-return.firebasestorage.app",
+    messagingSenderId: "981893642881",
+    appId:             "1:981893642881:web:53e36164e6561755cceb80",
+  };
+  // ✏️ 관리자 계정 — 비밀번호를 아래에서 변경하세요
+  const ADMIN_ID = 'admin';
+  const ADMIN_PW = 'jipyeongseon2024';
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ─────────────────────────────────────────
+  // HELPERS
+  // ─────────────────────────────────────────
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  function getTargetSunday() {
+    const today=new Date(), day=today.getDay();
+    if(day===0) return fmtDate(today);
+    const d=new Date(today); d.setDate(today.getDate()+(7-day)); return fmtDate(d);
+  }
+  function fmtDate(d){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function fmtTime(ts){
+    const t=ts.toDate();
+    return `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+  }
+  function showView(id){
+    ['view-login','view-student','view-teacher','view-admin'].forEach(v=>document.getElementById(v).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.getElementById('loading').classList.add('hidden');
+  }
+
+  // ─────────────────────────────────────────
+  // SESSION
+  // ─────────────────────────────────────────
+  function saveSession(u){ sessionStorage.setItem('jphs_user', JSON.stringify(u)); }
+  function loadSession(){ try{return JSON.parse(sessionStorage.getItem('jphs_user'));}catch{return null;} }
+  function clearSession(){ sessionStorage.removeItem('jphs_user'); }
+  window.logout=()=>{ clearSession(); location.reload(); };
+
+  // ─────────────────────────────────────────
+  // REMEMBER ME
+  // ─────────────────────────────────────────
+  const RM_KEY = 'jphs_remember';
+  function loadRemembered(){
+    try{ return JSON.parse(localStorage.getItem(RM_KEY)); }catch{ return null; }
+  }
+  function saveRemembered(id, pw){ localStorage.setItem(RM_KEY, JSON.stringify({id,pw})); }
+  function clearRemembered(){ localStorage.removeItem(RM_KEY); }
+
+  // 저장된 아이디/비번 복원
+  const remembered = loadRemembered();
+  if(remembered){
+    document.getElementById('login-id').value = remembered.id || '';
+    document.getElementById('login-pw').value = remembered.pw || '';
+    document.getElementById('chk-remember').checked = true;
+  }
+
+  // ─────────────────────────────────────────
+  // INIT ON LOAD
+  // ─────────────────────────────────────────
+  const existingUser = loadSession();
+  if(existingUser){ routeUser(existingUser); } else { showView('view-login'); }
+
+  async function routeUser(user){
+    if(user.role==='admin')        { await initAdmin();        showView('view-admin'); }
+    else if(user.role==='teacher') { initTeacher(user);        showView('view-teacher'); }
+    else                           { await initStudent(user);  showView('view-student'); }
+  }
+
+  // ─────────────────────────────────────────
+  // LOGIN
+  // ─────────────────────────────────────────
+  const loginIdEl  = document.getElementById('login-id');
+  const loginPwEl  = document.getElementById('login-pw');
+  const loginErrEl = document.getElementById('login-error');
+  const loginBtn   = document.getElementById('btn-login');
+
+  loginBtn.addEventListener('click', doLogin);
+  loginPwEl.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+  async function doLogin(){
+    const id=loginIdEl.value.trim(), pw=loginPwEl.value;
+    loginErrEl.textContent='';
+    if(!id||!pw){ loginErrEl.textContent='아이디와 비밀번호를 입력해주세요.'; return; }
+    loginBtn.textContent='확인 중...'; loginBtn.disabled=true;
+
+    const remember = document.getElementById('chk-remember').checked;
+
+    // 관리자
+    if(id===ADMIN_ID){
+      if(await sha256(pw)===await sha256(ADMIN_PW)){
+        if(remember) saveRemembered(id,pw); else clearRemembered();
+        saveSession({role:'admin',username:id});
+        await routeUser({role:'admin',username:id}); return;
+      }
+    }
+
+    // Firestore 사용자
+    const snap=await getDoc(doc(db,'users',id));
+    if(!snap.exists()){
+      loginErrEl.textContent='존재하지 않는 아이디입니다.';
+      loginBtn.textContent='로그인'; loginBtn.disabled=false; return;
+    }
+    const data=snap.data();
+    if(data.passwordHash!==await sha256(pw)){
+      loginErrEl.textContent='비밀번호가 올바르지 않습니다.';
+      loginBtn.textContent='로그인'; loginBtn.disabled=false; return;
+    }
+
+    if(remember) saveRemembered(id,pw); else clearRemembered();
+    const user={role:data.role,username:id,name:data.name,grade:data.grade,class:data.class,number:data.number};
+    saveSession(user);
+    await routeUser(user);
+  }
+
+  // ─────────────────────────────────────────
+  // 학생 화면
+  // ─────────────────────────────────────────
+  async function initStudent(user){
+    currentUser = user;
+    document.getElementById('s-header-user').textContent=`${user.name} 학생`;
+    document.getElementById('s-name').textContent=user.name;
+    document.getElementById('s-info').textContent=`${user.grade}학년 ${user.class}반 ${user.number}번`;
+
+    const dateInput=document.getElementById('s-date-input');
+    dateInput.value=getTargetSunday();
+
+    // 날짜 바뀔 때마다 확인 상태 새로 불러오기
+    dateInput.addEventListener('change', ()=>loadStudentConfirmation(user, dateInput.value));
+
+    await loadStudentConfirmation(user, dateInput.value);
+  }
+
+  async function loadStudentConfirmation(user, targetDate){
+    // UI 초기화
+    document.getElementById('confirm-form-wrap').classList.add('hidden');
+    document.getElementById('confirm-done').classList.add('hidden');
+
+    if(!targetDate) return;
+    const confirmId=`${targetDate}_${user.username}`;
+    const snap=await getDoc(doc(db,'confirmations',confirmId));
+
+    if(snap.exists()){
+      showStudentDone(snap.data(), user, targetDate, confirmId);
+    } else {
+      showStudentForm(user, targetDate, confirmId);
+    }
+  }
+
+  function showStudentForm(user, targetDate, confirmId, prefill=null){
+    // 제출 버튼 항상 활성화 (이전 제출로 disabled 상태일 수 있음)
+    ['btn-confirm','btn-late-confirm','btn-absent-confirm'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.disabled=false;
+    });
+
+    // 현재 상태 파악 (prefill 있을 때)
+    const currentStatus = prefill?.status ?? (prefill?.isLate ? 'late' : (prefill ? 'ok' : null));
+
+    // 폼 초기화
+    document.getElementById('chk-phone').checked        = prefill?.phoneReturned ?? false;
+    document.getElementById('input-items').value        = prefill?.otherItems ?? '';
+    document.getElementById('late-reason-input').value  = prefill?.lateReason ?? '';
+    const _eta = prefill?.expectedArrival ?? '';
+    const [_etaH='', _etaM=''] = _eta ? _eta.split(':') : ['',''];
+    document.getElementById('late-eta-hour').value = _etaH;
+    document.getElementById('late-eta-min').value  = _etaM;
+    document.getElementById('absent-reason-input').value = prefill?.absentReason ?? '';
+
+    // 모든 버튼/패널 초기화
+    ['ok','late','absent'].forEach(s=>{
+      document.getElementById(`choice-${s}`).className='sc-btn';
+      document.getElementById(`panel-${s}`).classList.add('hidden');
+    });
+
+    document.getElementById('confirm-form-wrap').classList.remove('hidden');
+
+    // 선택 함수 (중복 방지용 onclick 패턴)
+    function selectChoice(c){
+      ['ok','late','absent'].forEach(s=>{
+        document.getElementById(`choice-${s}`).className='sc-btn';
+        document.getElementById(`panel-${s}`).classList.add('hidden');
+      });
+      document.getElementById(`choice-${c}`).className=`sc-btn active-${c}`;
+      document.getElementById(`panel-${c}`).classList.remove('hidden');
+    }
+
+    document.getElementById('choice-ok').onclick     = ()=> selectChoice('ok');
+    document.getElementById('choice-late').onclick   = ()=> selectChoice('late');
+    document.getElementById('choice-absent').onclick = ()=> selectChoice('absent');
+
+    if(currentStatus) selectChoice(currentStatus);
+
+    // 제출 핸들러 (onclick 덮어쓰기로 중복 방지)
+    document.getElementById('btn-confirm').onclick = async()=>{
+      const phone=document.getElementById('chk-phone').checked;
+      const items=document.getElementById('input-items').value.trim();
+      await submitConfirm(user, targetDate, confirmId, 'ok', {phoneReturned:phone, otherItems:items});
+    };
+
+    document.getElementById('btn-late-confirm').onclick = async()=>{
+      const reason=document.getElementById('late-reason-input').value.trim();
+      if(!reason){ alert('지각 사유를 입력해주세요.'); return; }
+      const etaH=document.getElementById('late-eta-hour').value;
+      const etaM=document.getElementById('late-eta-min').value;
+      const eta=(etaH&&etaM)?`${etaH}:${etaM}`:(etaH?`${etaH}시`:'');
+      await submitConfirm(user, targetDate, confirmId, 'late', {lateReason:reason, expectedArrival:eta});
+    };
+
+    document.getElementById('btn-absent-confirm').onclick = async()=>{
+      const reason=document.getElementById('absent-reason-input').value.trim();
+      if(!reason){ alert('미귀교 사유를 입력해주세요.'); return; }
+      await submitConfirm(user, targetDate, confirmId, 'absent', {absentReason:reason});
+    };
+  }
+
+  async function submitConfirm(user, date, confirmId, status, extra={}){
+    const {phoneReturned=false, otherItems='', lateReason='', expectedArrival='', absentReason=''}=extra;
+    ['btn-confirm','btn-late-confirm','btn-absent-confirm'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.disabled=true;
+    });
+    try{
+      await setDoc(doc(db,'confirmations',confirmId),{
+        date, username:user.username, name:user.name, grade:user.grade,
+        class:user.class, number:user.number,
+        status,                          // 'ok' | 'late' | 'absent'
+        isLate: status==='late',         // 하위 호환
+        phoneReturned, otherItems,
+        lateReason, expectedArrival, absentReason,
+        confirmedAt:serverTimestamp(),
+      });
+      document.getElementById('confirm-form-wrap').classList.add('hidden');
+      const fresh=await getDoc(doc(db,'confirmations',confirmId));
+      showStudentDone(fresh.data(), user, date, confirmId);
+    }catch(e){
+      ['btn-confirm','btn-late-confirm','btn-absent-confirm'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.disabled=false;
+      });
+      alert('오류: '+e.message);
+    }
+  }
+
+  function getConfirmStatus(c){ return c?.status ?? (c?.isLate ? 'late' : 'ok'); }
+
+  function showStudentDone(data, user, targetDate, confirmId){
+    const done=document.getElementById('confirm-done');
+    const st=getConfirmStatus(data);
+    const cfg={
+      ok:     {cls:'normal', icon:'✅', text:'귀교 확인 완료!',    textCls:'green',  textStyle:''},
+      late:   {cls:'late',   icon:'⏰', text:'지각 귀교 확인 완료', textCls:'orange', textStyle:''},
+      absent: {cls:'late',   icon:'🏠', text:'미귀교 신고 완료',   textCls:'',       textStyle:'color:#c0392b'},
+    }[st] || {cls:'normal', icon:'✅', text:'귀교 확인 완료!', textCls:'green', textStyle:''};
+
+    done.className=`confirm-done ${cfg.cls}`;
+    done.classList.remove('hidden');
+    document.getElementById('cd-icon').textContent=cfg.icon;
+    const cdText=document.getElementById('cd-text');
+    cdText.textContent=cfg.text;
+    cdText.className=`cd-text ${cfg.textCls}`;
+    cdText.style=cfg.textStyle;
+
+    const time=data.confirmedAt?fmtTime(data.confirmedAt):'-';
+    let tags=`<span class="cd-tag">📅 ${targetDate}</span><span class="cd-tag">⏱ ${time}</span>`;
+
+    if(st==='ok'||st==='late'){
+      tags+=`<span class="cd-tag">${data.phoneReturned?'📱 핸드폰 반납 ✓':'📱 핸드폰 미반납'}</span>`;
+      if(data.otherItems) tags+=`<span class="cd-tag">📦 ${data.otherItems}</span>`;
+    }
+    if(st==='late'){
+      if(data.lateReason)      tags+=`<span class="cd-tag" style="color:#e67e22">⏰ 사유: ${data.lateReason}</span>`;
+      if(data.expectedArrival) tags+=`<span class="cd-tag" style="color:#e67e22">🕐 예상 도착: ${data.expectedArrival}</span>`;
+    }
+    if(st==='absent'){
+      if(data.absentReason) tags+=`<span class="cd-tag" style="color:#c0392b">🏠 사유: ${data.absentReason}</span>`;
+    }
+    document.getElementById('cd-detail').innerHTML=tags;
+
+    document.getElementById('btn-edit-confirm').onclick=()=>{
+      done.classList.add('hidden');
+      showStudentForm(user, targetDate, confirmId, data);
+    };
+  }
+
+  // ─────────────────────────────────────────
+  // 공유: 귀교 현황
+  // ─────────────────────────────────────────
+  let currentUser = null;
+  let allStudents=[], statusCache={};
+
+  async function ensureStudents(){
+    if(allStudents.length) return;
+    try{
+      const snap=await getDocs(
+        query(collection(db,'users'),where('role','==','student'),
+              orderBy('grade'),orderBy('class'),orderBy('number')));
+      allStudents=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch{
+      const snap=await getDocs(query(collection(db,'users'),where('role','==','student')));
+      allStudents=snap.docs.map(d=>({id:d.id,...d.data()}));
+      allStudents.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
+    }
+  }
+
+  async function loadStatus(p){
+    const date=document.getElementById(`${p}-date`).value;
+    if(!date){ alert('날짜를 선택해주세요.'); return; }
+    await ensureStudents();
+
+    const cSnap=await getDocs(query(collection(db,'confirmations'),where('date','==',date)));
+    const confirmed={};
+    cSnap.docs.forEach(d=>{ confirmed[d.data().username]=d.data(); });
+
+    const aSnap=await getDocs(query(collection(db,'absences'),where('date','==',date)));
+    const absences={};
+    aSnap.docs.forEach(d=>{ absences[d.data().username]=d.data(); });
+
+    statusCache[p]={confirmed,absences};
+
+    const total=allStudents.length;
+    const okCnt=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='ok'; }).length;
+    const lateCnt=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; }).length;
+    const missCnt=total-okCnt-lateCnt; // 미확인 + 미귀교 자진신고 포함
+
+    document.getElementById(`${p}-stat-total`).textContent=total;
+    document.getElementById(`${p}-stat-ok`).textContent=okCnt;
+    document.getElementById(`${p}-stat-late`).textContent=lateCnt;
+    document.getElementById(`${p}-stat-miss`).textContent=missCnt;
+
+    renderStatusTable(p); renderMissDash(p);
+  }
+
+  function getGrade(p){ return parseInt(document.querySelector(`#${p}-grade-tabs .grade-tab.active`)?.dataset.grade??0); }
+  function getFilter(p){ return document.querySelector(`#${p}-filter-row .filter-btn.active`)?.dataset.filter??'all'; }
+
+  function renderStatusTable(p){
+    const cache=statusCache[p]; if(!cache) return;
+    const {confirmed,absences}=cache;
+    const tbody=document.getElementById(`${p}-confirm-tbody`);
+    const grade=getGrade(p), filter=getFilter(p);
+    const date=document.getElementById(`${p}-date`).value;
+
+    let list=grade?allStudents.filter(s=>s.grade===grade):allStudents;
+    if(filter==='ok')   list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='ok'; });
+    if(filter==='late') list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; });
+    if(filter==='miss') list=list.filter(s=>{ const c=confirmed[s.id]; return !c||getConfirmStatus(c)==='absent'; });
+
+    if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="10">데이터 없음</td></tr>'; return; }
+
+    tbody.innerHTML=list.map(s=>{
+      const conf=confirmed[s.id];
+      const cSt=conf?getConfirmStatus(conf):null;
+
+      // 시간 (색상 포함)
+      const timeColor=cSt==='ok'?'#2d6a4f':cSt==='late'?'#e67e22':cSt==='absent'?'#6a0dad':'#c0392b';
+      const timeStr=conf?.confirmedAt
+        ?`<span style="font-weight:700;color:${timeColor}">${fmtTime(conf.confirmedAt)}</span>`
+        :`<span style="color:#c0392b;font-weight:700">-</span>`;
+      const etaStr=cSt==='late'&&conf?.expectedArrival?`<div class="eta-small">ETA ${conf.expectedArrival}</div>`:'';
+
+      let badge;
+      if(!conf)               badge='<span class="badge-no">✗ 미확인</span>';
+      else if(cSt==='absent') badge='<span class="badge-absent">🏠 미귀교</span>';
+      else if(cSt==='late')   badge='<span class="badge-late">⏰ 늦음</span>';
+      else                    badge='<span class="badge-ok">✓ 귀교</span>';
+
+      // 핸드폰 반납 (색상 강조)
+      const phoneIcon=(cSt==='ok'||cSt==='late')
+        ?(conf.phoneReturned
+          ?'<span style="color:#2d6a4f;font-weight:900;font-size:15px">✓</span>'
+          :'<span style="color:#c0392b;font-weight:900;font-size:15px">✗</span>')
+        :'-';
+
+      // 기타 물품 (전체 표시)
+      const itemsCell=(cSt==='ok'||cSt==='late')&&conf?.otherItems
+        ?`<span style="font-size:11px;color:#333;font-weight:600">${conf.otherItems}</span>`
+        :'-';
+
+      // 교사 메모 (absences) — 모든 학생에게 입력 가능
+      const ab=absences[s.id];
+      let reasonCell;
+      if(ab?.reason){
+        // 교사가 입력한 메모 우선 표시 (클릭 시 수정)
+        reasonCell=`<span style="font-size:11px;color:#880e4f;font-weight:600;cursor:pointer;text-decoration:underline dotted" onclick="window._openReason('${s.id}','${s.name}','${date}','${p}')" title="클릭하여 수정">${ab.reason.slice(0,12)}${ab.reason.length>12?'…':''}</span>`;
+      } else if(cSt==='absent'&&conf?.absentReason){
+        // 학생이 입력한 미귀교 사유 + 교사 메모 추가 버튼
+        reasonCell=`<div><span style="font-size:11px;color:#6a0dad;font-weight:600">${conf.absentReason.slice(0,10)}${conf.absentReason.length>10?'…':''}</span><br><button class="btn-reason" style="font-size:9px;padding:2px 5px;margin-top:2px" onclick="window._openReason('${s.id}','${s.name}','${date}','${p}')">+메모</button></div>`;
+      } else if(cSt==='late'&&conf?.lateReason){
+        // 학생이 입력한 지각 사유 + 교사 메모 추가 버튼
+        reasonCell=`<div><span style="font-size:11px;color:#e67e22;font-weight:600">${conf.lateReason.slice(0,10)}${conf.lateReason.length>10?'…':''}</span><br><button class="btn-reason" style="font-size:9px;padding:2px 5px;margin-top:2px" onclick="window._openReason('${s.id}','${s.name}','${date}','${p}')">+메모</button></div>`;
+      } else {
+        reasonCell=`<button class="btn-reason" onclick="window._openReason('${s.id}','${s.name}','${date}','${p}')">입력</button>`;
+      }
+
+      // 전화 버튼 (미확인/지각/미귀교 학생)
+      const needsCall=!conf||cSt==='late'||cSt==='absent';
+      const callCell=needsCall
+        ?(s.phone
+          ?`<a href="tel:${s.phone}" class="btn-call" title="${s.phone}">📞</a>`
+          :`<span style="font-size:9px;color:#bbb;line-height:1.2">번호<br>없음</span>`)
+        :'-';
+
+      // 행 배경색 강조
+      const rowCls=cSt==='late'?' class="row-late"':(!conf||cSt==='absent')?' class="row-miss"':'';
+
+      return `<tr${rowCls}>
+        <td>${s.grade}</td><td>${s.class}</td><td>${s.number}</td><td>${s.name}</td>
+        <td>${badge}</td><td>${timeStr}${etaStr}</td><td>${phoneIcon}</td><td class="td-items">${itemsCell}</td><td>${reasonCell}</td><td>${callCell}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderMissDash(p){
+    const cache=statusCache[p]; if(!cache) return;
+    const {confirmed,absences}=cache;
+    const late=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; });
+    const selfAbsent=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='absent'; });
+    const missing=allStudents.filter(s=>!confirmed[s.id]);
+    const el=document.getElementById(`${p}-miss-dashboard`);
+
+    if(!late.length&&!selfAbsent.length&&!missing.length){
+      el.innerHTML=`<div style="background:#d4edda;border-radius:12px;padding:18px;text-align:center;color:#155724;font-weight:700;font-size:15px">🎉 전원 귀교 완료!</div>`;
+      return;
+    }
+
+    let html='';
+
+    if(selfAbsent.length){
+      const byGrade={};
+      selfAbsent.forEach(s=>{ (byGrade[s.grade]??=[]).push(s); });
+      html+=`<div class="miss-section-label" style="background:#f0e8ff;color:#6a0dad">🏠 미귀교 (${selfAbsent.length}명)</div>`;
+      Object.entries(byGrade).sort().forEach(([g,arr])=>{
+        html+=`<div class="miss-grade-block"><div class="miss-grade-label">${g}학년 — ${arr.length}명</div><div class="miss-chips">`;
+        arr.forEach(s=>{
+          const c=confirmed[s.id];
+          html+=`<div class="miss-chip absent" style="border-color:#d8b4fe"><div class="chip-name">${s.name}</div><div class="chip-sub">${s.class}반 ${s.number}번</div>${c?.absentReason?`<div class="chip-reason">${c.absentReason}</div>`:''}</div>`;
+        });
+        html+='</div></div>';
+      });
+    }
+
+    if(missing.length){
+      const byGrade={};
+      missing.forEach(s=>{ (byGrade[s.grade]??=[]).push(s); });
+      html+=`<div class="miss-section-label" style="background:#fff0f0;color:#c0392b">🚨 미확인 학생 (${missing.length}명)</div>`;
+      Object.entries(byGrade).sort().forEach(([g,arr])=>{
+        html+=`<div class="miss-grade-block"><div class="miss-grade-label">${g}학년 — ${arr.length}명</div><div class="miss-chips">`;
+        arr.forEach(s=>{
+          const ab=absences[s.id];
+          html+=`<div class="miss-chip absent"><div class="chip-name">${s.name}</div><div class="chip-sub">${s.class}반 ${s.number}번</div>${ab?.reason?`<div class="chip-reason">${ab.reason}</div>`:''}</div>`;
+        });
+        html+='</div></div>';
+      });
+    }
+
+    if(late.length){
+      const byGrade={};
+      late.forEach(s=>{ (byGrade[s.grade]??=[]).push(s); });
+      html+=`<div class="miss-section-label" style="background:#fff8f0;color:#e67e22">⏰ 지각 학생 (${late.length}명)</div>`;
+      Object.entries(byGrade).sort().forEach(([g,arr])=>{
+        html+=`<div class="miss-grade-block"><div class="miss-grade-label">${g}학년 — ${arr.length}명</div><div class="miss-chips">`;
+        arr.forEach(s=>{
+          const c=confirmed[s.id];
+          const eta=c?.expectedArrival?` · ETA ${c.expectedArrival}`:'';
+          html+=`<div class="miss-chip late"><div class="chip-name">${s.name}</div><div class="chip-sub">${s.class}반 ${s.number}번${eta}</div>${c?.lateReason?`<div class="chip-late-reason">${c.lateReason}</div>`:''}</div>`;
+        });
+        html+='</div></div>';
+      });
+    }
+
+    el.innerHTML=html;
+  }
+
+  function setupStatusEvents(p){
+    document.getElementById(`${p}-btn-refresh`).addEventListener('click',()=>loadStatus(p));
+    document.querySelectorAll(`#${p}-grade-tabs .grade-tab`).forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll(`#${p}-grade-tabs .grade-tab`).forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); renderStatusTable(p);
+      });
+    });
+    document.querySelectorAll(`#${p}-filter-row .filter-btn`).forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll(`#${p}-filter-row .filter-btn`).forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); renderStatusTable(p);
+      });
+    });
+  }
+
+  // 미귀교 사유 모달
+  let _rCtx={};
+  window._openReason=(username,name,date,p)=>{
+    const ab=statusCache[p]?.absences[username];
+    _rCtx={username,name,date,p};
+    document.getElementById('modal-student-info').textContent=`${name} — ${date}`;
+    document.getElementById('reason-text').value=ab?.reason||'';
+    document.getElementById('reason-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-modal-cancel').addEventListener('click',()=>{
+    document.getElementById('reason-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-modal-save').addEventListener('click',async()=>{
+    const{username,name,date,p}=_rCtx;
+    const reason=document.getElementById('reason-text').value.trim();
+    const s=allStudents.find(x=>x.id===username); if(!s) return;
+    if(reason){
+      await setDoc(doc(db,'absences',`${date}_${username}`),{
+        date,username,name:s.name,grade:s.grade,class:s.class,number:s.number,
+        reason,recordedAt:serverTimestamp(),
+      });
+      if(statusCache[p]) statusCache[p].absences[username]={reason};
+    }
+    renderStatusTable(p); renderMissDash(p);
+    document.getElementById('reason-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-modal-delete').addEventListener('click',async()=>{
+    const{username,date,p}=_rCtx;
+    if(!confirm('사유를 삭제하시겠습니까?')) return;
+    await deleteDoc(doc(db,'absences',`${date}_${username}`));
+    if(statusCache[p]) delete statusCache[p].absences[username];
+    renderStatusTable(p); renderMissDash(p);
+    document.getElementById('reason-modal').classList.add('hidden');
+  });
+
+  // ─────────────────────────────────────────
+  // 교사 화면
+  // ─────────────────────────────────────────
+  function initTeacher(user){
+    currentUser = user;
+    document.getElementById('t-header-user').textContent=`${user.name} 선생님`;
+    document.getElementById('t-date').value=getTargetSunday();
+    setupStatusEvents('t');
+    loadStatus('t');
+
+    // 교사 탭 전환
+    document.querySelectorAll('#view-teacher .view-tab').forEach(tab=>{
+      tab.addEventListener('click',()=>{
+        document.querySelectorAll('#view-teacher .view-tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        ['tab-t-status','tab-t-notes'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        document.getElementById(`tab-${tab.dataset.ttab}`).classList.remove('hidden');
+        if(tab.dataset.ttab==='t-notes') loadTeacherNotes();
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // 특이사항 (교사 notes)
+  // ─────────────────────────────────────────
+  let notesCache={};
+
+  async function loadTeacherNotes(){
+    await ensureStudents();
+    const snap=await getDocs(collection(db,'student_notes'));
+    notesCache={};
+    snap.docs.forEach(d=>{ notesCache[d.id]=d.data().note||''; });
+    renderTeacherNotes();
+  }
+
+  function renderTeacherNotes(){
+    const el=document.getElementById('t-notes-list');
+    const withNotes=allStudents.filter(s=>notesCache[s.id]);
+    if(!withNotes.length){
+      el.innerHTML='<div style="color:#aaa;text-align:center;padding:20px;font-size:13px">특이사항이 기록된 학생이 없습니다.<br>위에서 학생을 검색하여 추가하세요.</div>';
+      return;
+    }
+    el.innerHTML=withNotes.map(s=>{
+      const note=notesCache[s.id];
+      return `<div class="notes-row">
+        <div class="notes-info"><div class="ni-name" style="font-size:14px;font-weight:900">${s.name}</div><div class="ni-sub">${s.grade}학년 ${s.class}반 ${s.number}번</div></div>
+        <div class="notes-content" style="font-size:13px;color:#1a1a2e;font-weight:500;line-height:1.5">${note.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+        <button class="btn-note-edit" onclick="window._openNote('${s.id}','${s.name}','${s.grade}학년 ${s.class}반 ${s.number}번')">✏️수정</button>
+      </div>`;
+    }).join('');
+  }
+
+  window._searchNote=()=>{
+    const q=document.getElementById('notes-search-input').value.trim().toLowerCase();
+    const resEl=document.getElementById('notes-search-results');
+    if(!q){ resEl.innerHTML=''; return; }
+    const matches=allStudents.filter(s=>
+      s.name.toLowerCase().includes(q)||
+      `${s.grade}학년 ${s.class}반 ${s.number}번`.includes(q)||
+      s.id.toLowerCase().includes(q)
+    ).slice(0,6);
+    if(!matches.length){ resEl.innerHTML='<div style="color:#aaa;font-size:12px;padding:6px">검색 결과 없음</div>'; return; }
+    resEl.innerHTML=matches.map(s=>{
+      const hasNote=!!notesCache[s.id];
+      return `<button onclick="window._openNote('${s.id}','${s.name}','${s.grade}학년 ${s.class}반 ${s.number}번')" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:2px solid ${hasNote?'#1e3a5f':'#e0e0e0'};border-radius:10px;background:${hasNote?'#eef2ff':'white'};font-family:inherit;cursor:pointer;font-size:13px">
+        <strong>${s.name}</strong> <span style="color:#666;font-size:12px">${s.grade}학년 ${s.class}반 ${s.number}번</span>
+        ${hasNote?'<span style="color:#1e3a5f;font-size:11px;font-weight:700;margin-left:6px">📝 메모 있음</span>':'<span style="color:#aaa;font-size:11px;margin-left:6px">메모 없음</span>'}
+      </button>`;
+    }).join('');
+  };
+
+  // 검색창 Enter 키 지원은 oninput으로 처리
+  document.addEventListener('keydown', e=>{
+    if(e.target.id==='notes-search-input'&&e.key==='Enter') window._searchNote();
+  });
+
+  let _nCtx={};
+  window._openNote=(uid,name,info)=>{
+    _nCtx={uid};
+    document.getElementById('notes-modal-student').textContent=`${name} — ${info}`;
+    document.getElementById('notes-modal-text').value=notesCache[uid]||'';
+    document.getElementById('notes-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-notes-cancel').addEventListener('click',()=>{
+    document.getElementById('notes-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-notes-delete').addEventListener('click',async()=>{
+    if(!confirm('이 학생의 특이사항을 삭제할까요?')) return;
+    const {uid}=_nCtx;
+    await deleteDoc(doc(db,'student_notes',uid));
+    delete notesCache[uid];
+    renderTeacherNotes();
+    document.getElementById('notes-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-notes-save').addEventListener('click',async()=>{
+    const {uid}=_nCtx;
+    const note=document.getElementById('notes-modal-text').value.trim();
+    if(!note){ alert('내용을 입력해주세요. 삭제하려면 삭제 버튼을 눌러주세요.'); return; }
+    await setDoc(doc(db,'student_notes',uid),{note,updatedAt:serverTimestamp()});
+    notesCache[uid]=note;
+    renderTeacherNotes();
+    document.getElementById('notes-modal').classList.add('hidden');
+  });
+
+  // ─────────────────────────────────────────
+  // 관리자 화면
+  // ─────────────────────────────────────────
+  async function initAdmin(){
+    document.querySelectorAll('#view-admin .view-tab').forEach(tab=>{
+      tab.addEventListener('click',()=>{
+        document.querySelectorAll('#view-admin .view-tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+        ['tab-a-status','tab-a-students','tab-a-teachers'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('a-date').value=getTargetSunday();
+    setupStatusEvents('a');
+    document.getElementById('a-btn-reset').addEventListener('click',resetDate);
+    document.getElementById('btn-add-student').addEventListener('click',addStudent);
+    document.getElementById('csv-student').addEventListener('change',handleStudentCSV);
+    setupBulkDelete('students');
+    document.getElementById('btn-add-teacher').addEventListener('click',addTeacher);
+    setupBulkDelete('teachers');
+
+    await Promise.all([loadStatus('a'),loadStudents(),loadTeachers()]);
+  }
+
+  // ─────────────────────────────────────────
+  // 학생 계정 관리
+  // ─────────────────────────────────────────
+  let studentList=[];
+
+  async function loadStudents(){
+    try{
+      const snap=await getDocs(query(collection(db,'users'),where('role','==','student'),
+        orderBy('grade'),orderBy('class'),orderBy('number')));
+      studentList=snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch{
+      const snap=await getDocs(query(collection(db,'users'),where('role','==','student')));
+      studentList=snap.docs.map(d=>({id:d.id,...d.data()}));
+      studentList.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
+    }
+    allStudents=studentList;
+    renderStudentTable();
+    document.getElementById('student-count').textContent=studentList.length+'명';
+  }
+
+  function renderStudentTable(){
+    const tbody=document.getElementById('students-tbody');
+    if(!studentList.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">등록된 학생이 없습니다</td></tr>'; return; }
+    tbody.innerHTML=studentList.map(s=>`
+      <tr>
+        <td><input type="checkbox" class="chk-student" data-id="${s.id}"></td>
+        <td>${s.grade}</td><td>${s.class}</td><td>${s.number}</td><td>${s.name}</td>
+        <td style="font-size:11px">${s.id}</td>
+        <td style="font-size:11px">${s.phone||'-'}</td>
+        <td><button class="btn-xs btn-xs-blue" onclick="window._editStudent('${s.id}')">수정</button></td>
+        <td><button class="btn-xs btn-xs-red" onclick="window._delUser('${s.id}','student')">삭제</button></td>
+      </tr>`).join('');
+    syncBulkBar('students');
+  }
+
+  function autoUid(g,c,n){ return `${g}-${String(c).padStart(2,'0')}-${String(n).padStart(2,'0')}`; }
+  ['add-grade','add-class','add-number'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',()=>{
+      const g=document.getElementById('add-grade').value;
+      const c=document.getElementById('add-class').value;
+      const n=document.getElementById('add-number').value;
+      if(g&&c&&n) document.getElementById('add-uid').value=autoUid(g,c,n);
+    });
+  });
+
+  async function addStudent(){
+    const grade=parseInt(document.getElementById('add-grade').value);
+    const cls=parseInt(document.getElementById('add-class').value);
+    const number=parseInt(document.getElementById('add-number').value);
+    const name=document.getElementById('add-name').value.trim();
+    const uid=document.getElementById('add-uid').value.trim()||autoUid(grade,cls,number);
+    const pw=document.getElementById('add-pw').value;
+    const phone=document.getElementById('add-phone').value.trim();
+    if(!grade||!cls||!number||!name){ alert('학년·반·번호·이름은 필수입니다.'); return; }
+    const finalPw = pw || '1234';
+    if((await getDoc(doc(db,'users',uid))).exists()){ alert(`아이디 "${uid}"가 이미 존재합니다.`); return; }
+    await setDoc(doc(db,'users',uid),{role:'student',name,grade,class:cls,number,phone,passwordHash:await sha256(finalPw)});
+    ['add-grade','add-class','add-number','add-name','add-uid','add-pw','add-phone'].forEach(id=>document.getElementById(id).value='');
+    allStudents=[];
+    await loadStudents();
+    alert(`${name} 학생 계정 생성!\n아이디: ${uid}\n비밀번호: ${finalPw}`);
+  }
+
+  async function handleStudentCSV(e){
+    const file=e.target.files[0]; if(!file) return;
+    const text=await file.text();
+    const lines=text.split('\n').filter(l=>l.trim());
+    const start=isNaN(lines[0]?.split(',')[0]?.trim())?1:0;
+    let count=0;
+    for(let i=start;i<lines.length;i++){
+      let[g,c,n,name,uid='',pw='',phone='']=lines[i].split(',').map(x=>x.trim());
+      if(!g||!c||!n||!name) continue;
+      if(!pw) pw='1234';
+      const grade=parseInt(g),cls=parseInt(c),number=parseInt(n);
+      if(isNaN(grade)||isNaN(cls)||isNaN(number)) continue;
+      const docId=uid||autoUid(grade,cls,number);
+      await setDoc(doc(db,'users',docId),{role:'student',name,grade,class:cls,number,phone,passwordHash:await sha256(pw)});
+      count++;
+    }
+    allStudents=[];
+    await loadStudents();
+    alert(`${count}명 계정 생성 완료!`);
+    e.target.value='';
+  }
+
+  // ─────────────────────────────────────────
+  // 교사 계정 관리
+  // ─────────────────────────────────────────
+  let teacherList=[];
+
+  async function loadTeachers(){
+    const snap=await getDocs(query(collection(db,'users'),where('role','==','teacher')));
+    teacherList=snap.docs.map(d=>({id:d.id,...d.data()}));
+    teacherList.sort((a,b)=>(a.name||'').localeCompare(b.name||'','ko'));
+    renderTeacherTable();
+    document.getElementById('teacher-count').textContent=teacherList.length+'명';
+  }
+
+  function renderTeacherTable(){
+    const tbody=document.getElementById('teachers-tbody');
+    if(!teacherList.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">등록된 교사가 없습니다</td></tr>'; return; }
+    tbody.innerHTML=teacherList.map(t=>`
+      <tr>
+        <td><input type="checkbox" class="chk-teacher" data-id="${t.id}"></td>
+        <td>${t.name||'-'}</td><td style="font-size:11px">${t.id}</td>
+        <td><button class="btn-xs btn-xs-blue" onclick="window._editTeacher('${t.id}')">수정</button></td>
+        <td><button class="btn-xs btn-xs-red" onclick="window._delUser('${t.id}','teacher')">삭제</button></td>
+      </tr>`).join('');
+    syncBulkBar('teachers');
+  }
+
+  async function addTeacher(){
+    const name=document.getElementById('add-teacher-name').value.trim();
+    const uid=document.getElementById('add-teacher-uid').value.trim();
+    const pw=document.getElementById('add-teacher-pw').value;
+    if(!uid){ alert('아이디는 필수입니다.'); return; }
+    const finalTeacherPw = pw || '1234';
+    if((await getDoc(doc(db,'users',uid))).exists()){ alert(`아이디 "${uid}"가 이미 존재합니다.`); return; }
+    await setDoc(doc(db,'users',uid),{role:'teacher',name,passwordHash:await sha256(finalTeacherPw)});
+    ['add-teacher-name','add-teacher-uid','add-teacher-pw'].forEach(id=>document.getElementById(id).value='');
+    await loadTeachers();
+    alert(`${name||uid} 교사 계정 생성 완료!\n아이디: ${uid}\n비밀번호: ${finalTeacherPw}`);
+  }
+
+  // ─────────────────────────────────────────
+  // 공통: 삭제 / 비밀번호 변경
+  // ─────────────────────────────────────────
+  window._delUser=async(id,type)=>{
+    if(!confirm(`"${id}" 계정을 삭제할까요?`)) return;
+    await deleteDoc(doc(db,'users',id));
+    if(type==='student'){ allStudents=[]; await loadStudents(); } else { await loadTeachers(); }
+  };
+  window._resetPw=async(id)=>{
+    const newPw=prompt(`"${id}" 계정의 새 비밀번호:`);
+    if(!newPw) return;
+    await updateDoc(doc(db,'users',id),{passwordHash:await sha256(newPw)});
+    alert('비밀번호가 변경되었습니다.');
+  };
+
+  // ─────────────────────────────────────────
+  // 학생 정보 수정 모달
+  // ─────────────────────────────────────────
+  let _editStuCtx={};
+  window._editStudent=async(id)=>{
+    const s=studentList.find(x=>x.id===id); if(!s) return;
+    _editStuCtx={id};
+    document.getElementById('edit-modal-uid').textContent=`아이디: ${id}`;
+    document.getElementById('edit-grade').value=String(s.grade);
+    document.getElementById('edit-class').value=String(s.class);
+    document.getElementById('edit-number').value=s.number;
+    document.getElementById('edit-name').value=s.name;
+    document.getElementById('edit-phone').value=s.phone||'';
+    document.getElementById('edit-new-pw').value='';
+    document.getElementById('edit-student-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-edit-stu-cancel').addEventListener('click',()=>{
+    document.getElementById('edit-student-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-edit-stu-save').addEventListener('click',async()=>{
+    const {id}=_editStuCtx;
+    const grade=parseInt(document.getElementById('edit-grade').value);
+    const cls=parseInt(document.getElementById('edit-class').value);
+    const number=parseInt(document.getElementById('edit-number').value);
+    const name=document.getElementById('edit-name').value.trim();
+    const phone=document.getElementById('edit-phone').value.trim();
+    const newPw=document.getElementById('edit-new-pw').value;
+    if(!grade||!cls||!number||!name){ alert('학년·반·번호·이름은 필수입니다.'); return; }
+    const upd={grade,class:cls,number,name,phone};
+    if(newPw) upd.passwordHash=await sha256(newPw);
+    await updateDoc(doc(db,'users',id),upd);
+    allStudents=[];
+    await loadStudents();
+    document.getElementById('edit-student-modal').classList.add('hidden');
+    alert('수정 완료!');
+  });
+
+  // ─────────────────────────────────────────
+  // 일괄 삭제
+  // ─────────────────────────────────────────
+  function setupBulkDelete(type){
+    const allChk=document.getElementById(`chk-all-${type}`);
+    const delBtn=document.getElementById(`btn-bulk-del-${type}`);
+    const cls=`chk-${type==='students'?'student':'teacher'}`;
+
+    allChk.addEventListener('change',()=>{
+      document.querySelectorAll(`.${cls}`).forEach(c=>{c.checked=allChk.checked;});
+      syncBulkBar(type);
+    });
+    document.getElementById(`tab-a-${type}`).addEventListener('change',e=>{
+      if(e.target.classList.contains(cls)) syncBulkBar(type);
+    });
+    delBtn.addEventListener('click',async()=>{
+      const ids=[...document.querySelectorAll(`.${cls}:checked`)].map(c=>c.dataset.id);
+      if(!ids.length) return;
+      if(!confirm(`선택한 ${ids.length}개 계정을 삭제할까요?`)) return;
+      await Promise.all(ids.map(id=>deleteDoc(doc(db,'users',id))));
+      allStudents=[];
+      if(type==='students') await loadStudents(); else await loadTeachers();
+    });
+  }
+
+  function syncBulkBar(type){
+    const cls=`chk-${type==='students'?'student':'teacher'}`;
+    const checked=document.querySelectorAll(`.${cls}:checked`).length;
+    const delBtn=document.getElementById(`btn-bulk-del-${type}`);
+    delBtn.disabled=checked===0;
+    delBtn.textContent=`선택 삭제 (${checked})`;
+    const allChk=document.getElementById(`chk-all-${type}`);
+    const total=document.querySelectorAll(`.${cls}`).length;
+    allChk.indeterminate=checked>0&&checked<total;
+    allChk.checked=total>0&&checked===total;
+  }
+
+  // ─────────────────────────────────────────
+  // 교사 정보 수정 모달
+  // ─────────────────────────────────────────
+  let _editTeacherCtx={};
+  window._editTeacher=async(id)=>{
+    const t=teacherList.find(x=>x.id===id); if(!t) return;
+    _editTeacherCtx={id};
+    document.getElementById('edit-teacher-modal-uid').textContent=`아이디: ${id}`;
+    document.getElementById('edit-teacher-edit-name').value=t.name||'';
+    document.getElementById('edit-teacher-new-pw').value='';
+    document.getElementById('edit-teacher-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-edit-teacher-cancel').addEventListener('click',()=>{
+    document.getElementById('edit-teacher-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-edit-teacher-save').addEventListener('click',async()=>{
+    const {id}=_editTeacherCtx;
+    const name=document.getElementById('edit-teacher-edit-name').value.trim();
+    const newPw=document.getElementById('edit-teacher-new-pw').value;
+    if(!name){ alert('이름은 필수입니다.'); return; }
+    const upd={name};
+    if(newPw) upd.passwordHash=await sha256(newPw);
+    await updateDoc(doc(db,'users',id),upd);
+    await loadTeachers();
+    document.getElementById('edit-teacher-modal').classList.add('hidden');
+    alert('수정 완료!');
+  });
+
+  // ─────────────────────────────────────────
+  // 학생 자신 정보 수정
+  // ─────────────────────────────────────────
+  window.openStudentSelfEdit = async () => {
+    if(!currentUser) return;
+    const snap = await getDoc(doc(db,'users',currentUser.username));
+    const data = snap.exists() ? snap.data() : {};
+    document.getElementById('student-self-edit-info').textContent =
+      `${currentUser.name} — ${currentUser.grade}학년 ${currentUser.class}반 ${currentUser.number}번`;
+    document.getElementById('self-edit-phone').value = data.phone || '';
+    document.getElementById('self-edit-current-pw').value = '';
+    document.getElementById('self-edit-new-pw').value = '';
+    document.getElementById('student-self-edit-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-self-edit-cancel').addEventListener('click',()=>{
+    document.getElementById('student-self-edit-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-self-edit-save').addEventListener('click', async()=>{
+    const phone = document.getElementById('self-edit-phone').value.trim();
+    const currentPw = document.getElementById('self-edit-current-pw').value;
+    const newPw = document.getElementById('self-edit-new-pw').value;
+    if(!currentPw){ alert('현재 비밀번호를 입력해주세요.'); return; }
+    // 현재 비밀번호 검증
+    const snap = await getDoc(doc(db,'users',currentUser.username));
+    if(!snap.exists()){ alert('계정 정보를 찾을 수 없습니다.'); return; }
+    if(snap.data().passwordHash !== await sha256(currentPw)){
+      alert('현재 비밀번호가 올바르지 않습니다.'); return;
+    }
+    const upd = { phone };
+    if(newPw) upd.passwordHash = await sha256(newPw);
+    await updateDoc(doc(db,'users',currentUser.username), upd);
+    document.getElementById('student-self-edit-modal').classList.add('hidden');
+    alert('정보가 수정되었습니다.');
+  });
+
+  // ─────────────────────────────────────────
+  // 교사 자신 정보 수정
+  // ─────────────────────────────────────────
+  window.openTeacherSelfEdit = async () => {
+    if(!currentUser) return;
+    const snap = await getDoc(doc(db,'users',currentUser.username));
+    const data = snap.exists() ? snap.data() : {};
+    document.getElementById('teacher-self-edit-info').textContent = `아이디: ${currentUser.username}`;
+    document.getElementById('t-self-edit-name').value = data.name || currentUser.name || '';
+    document.getElementById('t-self-edit-current-pw').value = '';
+    document.getElementById('t-self-edit-new-pw').value = '';
+    document.getElementById('teacher-self-edit-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-t-self-edit-cancel').addEventListener('click',()=>{
+    document.getElementById('teacher-self-edit-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-t-self-edit-save').addEventListener('click', async()=>{
+    const name = document.getElementById('t-self-edit-name').value.trim();
+    const currentPw = document.getElementById('t-self-edit-current-pw').value;
+    const newPw = document.getElementById('t-self-edit-new-pw').value;
+    if(!name){ alert('이름은 필수입니다.'); return; }
+    if(!currentPw){ alert('현재 비밀번호를 입력해주세요.'); return; }
+    // 현재 비밀번호 검증
+    const snap = await getDoc(doc(db,'users',currentUser.username));
+    if(!snap.exists()){ alert('계정 정보를 찾을 수 없습니다.'); return; }
+    if(snap.data().passwordHash !== await sha256(currentPw)){
+      alert('현재 비밀번호가 올바르지 않습니다.'); return;
+    }
+    const upd = { name };
+    if(newPw) upd.passwordHash = await sha256(newPw);
+    await updateDoc(doc(db,'users',currentUser.username), upd);
+    // 세션 및 헤더 업데이트
+    currentUser.name = name;
+    saveSession(currentUser);
+    document.getElementById('t-header-user').textContent = `${name} 선생님`;
+    document.getElementById('teacher-self-edit-modal').classList.add('hidden');
+    alert('정보가 수정되었습니다.');
+  });
+
+  // ─────────────────────────────────────────
+  // 엑셀 다운로드
+  // ─────────────────────────────────────────
+  window._downloadExcel=(p)=>{
+    const date=document.getElementById(`${p}-date`).value;
+    if(!date){ alert('날짜를 먼저 선택하고 불러오기를 눌러주세요.'); return; }
+    const cache=statusCache[p];
+    if(!cache){ alert('데이터를 먼저 불러와주세요.'); return; }
+    const {confirmed,absences}=cache;
+
+    const rows=[['학년','반','번호','이름','상태','귀교 시간','핸드폰 반납','기타 물품','사유 / 예상 도착','전화번호']];
+    allStudents.forEach(s=>{
+      const conf=confirmed[s.id];
+      const cSt=conf?getConfirmStatus(conf):null;
+      const statusLabel=!conf?'미확인':cSt==='absent'?'미귀교':cSt==='late'?'지각':'귀교';
+      const time=conf?.confirmedAt?fmtTime(conf.confirmedAt):'-';
+      const phone=(cSt==='ok'||cSt==='late')?(conf.phoneReturned?'O':'X'):'-';
+      const items=(cSt==='ok'||cSt==='late')?conf.otherItems||'':'-';
+      let reason='-';
+      if(cSt==='absent') reason=conf.absentReason||'미귀교';
+      else if(cSt==='late'){
+        reason=conf.lateReason||'';
+        if(conf.expectedArrival) reason+=` (예상도착: ${conf.expectedArrival})`;
+      } else if(!conf) reason=absences[s.id]?.reason||'-';
+      rows.push([s.grade,s.class,s.number,s.name,statusLabel,time,phone,items,reason,s.phone||'']);
+    });
+
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    // 열 너비 설정
+    ws['!cols']=[{wch:6},{wch:4},{wch:5},{wch:8},{wch:14},{wch:8},{wch:8},{wch:14},{wch:24},{wch:14}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'귀교현황');
+    XLSX.writeFile(wb,`귀교현황_${date}.xlsx`);
+  };
+
+  // ─────────────────────────────────────────
+  // 귀교 기록 초기화
+  // ─────────────────────────────────────────
+  async function resetDate(){
+    const date=document.getElementById('a-date').value;
+    if(!date){ alert('날짜를 선택해주세요.'); return; }
+    if(!confirm(`${date}의 모든 기록을 삭제할까요?`)) return;
+    const cSnap=await getDocs(query(collection(db,'confirmations'),where('date','==',date)));
+    const aSnap=await getDocs(query(collection(db,'absences'),where('date','==',date)));
+    await Promise.all([...cSnap.docs,...aSnap.docs].map(d=>deleteDoc(d.ref)));
+    await loadStatus('a');
+    alert('초기화 완료');
+  }
+</script>
+</body>
+</html>
