@@ -811,11 +811,19 @@
   // INIT ON LOAD
   // ─────────────────────────────────────────
   const existingUser = loadSession();
-  if(existingUser){ routeUser(existingUser); } else { showView('view-login'); }
+  if(existingUser){
+    routeUser(existingUser).catch(err=>{
+      console.warn('세션 복원 실패:', err);
+      clearSession();
+      showView('view-login');
+    });
+  } else {
+    showView('view-login');
+  }
 
   async function routeUser(user){
     if(user.role==='admin')        { await initAdmin();        showView('view-admin'); }
-    else if(user.role==='teacher') { initTeacher(user);        showView('view-teacher'); }
+    else if(user.role==='teacher') { await initTeacher(user); showView('view-teacher'); }
     else                           { await initStudent(user);  showView('view-student'); }
   }
 
@@ -1275,7 +1283,7 @@
   // ─────────────────────────────────────────
   // 교사 화면
   // ─────────────────────────────────────────
-  function initTeacher(user){
+  async function initTeacher(user){
     currentUser = user;
     document.getElementById('t-header-user').textContent=`${user.name} 선생님`;
     document.getElementById('t-date').value=getTargetSunday();
