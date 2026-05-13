@@ -364,11 +364,12 @@
     </div>
     <!-- 날짜 선택 -->
     <div class="s-date-card">
-      <div class="d-label">📅 귀교 확인 날짜 선택</div>
+      <div class="d-label" id="s-date-label">📅 날짜 선택</div>
       <input type="date" id="s-date-input">
+      <div id="s-mode-hint" style="font-size:11px;color:#888;margin-top:6px"></div>
     </div>
 
-    <!-- 귀교 입력 폼 (미확인 상태) -->
+    <!-- 일요일 귀교 입력 폼 (미확인 상태) -->
     <div id="confirm-form-wrap" class="confirm-form hidden">
       <div class="cf-title">📋 귀교 상태를 선택해주세요</div>
 
@@ -454,10 +455,9 @@
       <button id="btn-edit-confirm" class="btn-edit">✏️ 수정하기</button>
     </div>
 
-    <!-- 평일 외출 카드 -->
-    <div class="s-date-card" style="margin-top:8px;background:#fff8f0;border:2px solid #f5c36d">
-      <div class="d-label" style="color:#b8651d">🚶 평일 외출 (오늘)</div>
-      <input type="date" id="s-out-date" style="margin-bottom:10px">
+    <!-- 평일 외출 폼 -->
+    <div id="s-out-form-wrap" class="confirm-form hidden">
+      <div class="cf-title">📋 오늘 상태를 선택해주세요</div>
       <div id="s-out-form">
         <div class="sc-row">
           <button class="sc-btn" id="s-out-choice-home">
@@ -472,20 +472,20 @@
           </button>
           <button class="sc-btn" id="s-out-choice-school">
             <div class="sc-icon">🏫</div>
-            <div class="sc-label">학교</div>
-            <div class="sc-sub">학교에 있음</div>
+            <div class="sc-label">잔류</div>
+            <div class="sc-sub">학교에 남음</div>
           </button>
         </div>
         <textarea id="s-out-reason" placeholder="사유 (선택)" style="min-height:50px;margin-top:4px"></textarea>
         <button id="s-out-submit" class="btn-confirm" style="margin-top:8px;display:block;margin-left:auto;margin-right:auto;background:linear-gradient(135deg,#e67e22,#f39c12);box-shadow:0 6px 20px rgba(230,126,34,0.3)">제출</button>
       </div>
-      <div id="s-out-done" class="hidden" style="text-align:center;padding:8px">
-        <div id="s-out-done-icon" style="font-size:36px;margin-bottom:4px">✅</div>
-        <div id="s-out-done-text" style="font-weight:900;font-size:16px;margin-bottom:4px">제출 완료</div>
-        <div id="s-out-done-detail" style="font-size:12px;color:#666;margin-bottom:8px"></div>
-        <button id="s-out-return-btn" class="btn-confirm hidden" style="background:linear-gradient(135deg,#2d6a4f,#40916c);box-shadow:0 6px 20px rgba(45,106,79,0.3);font-size:16px;padding:14px 18px;display:inline-block;width:auto">🏫 귀교 표시</button>
-        <button id="s-out-edit-btn" class="btn-edit" style="margin-top:6px">✏️ 수정하기</button>
-      </div>
+    </div>
+    <div id="s-out-done" class="confirm-done hidden">
+      <div class="cd-icon" id="s-out-done-icon">✅</div>
+      <div class="cd-text" id="s-out-done-text">제출 완료</div>
+      <div class="cd-detail" id="s-out-done-detail"></div>
+      <button id="s-out-return-btn" class="btn-confirm hidden" style="background:linear-gradient(135deg,#2d6a4f,#40916c);box-shadow:0 6px 20px rgba(45,106,79,0.3);font-size:16px;padding:14px 18px;margin-top:10px;display:inline-block;width:auto">🏫 귀교 표시</button>
+      <button id="s-out-edit-btn" class="btn-edit">✏️ 수정하기</button>
     </div>
   </div>
 </div>
@@ -501,7 +501,6 @@
   </div>
   <div class="view-tabs">
     <div class="view-tab active" data-ttab="t-status">📊 귀교 현황</div>
-    <div class="view-tab" data-ttab="t-outing">🚶 외출 현황</div>
     <div class="view-tab" data-ttab="t-notes">📝 특이사항</div>
   </div>
 
@@ -518,82 +517,81 @@
         <span id="t-auto-refresh-status" style="color:#2d6a4f;font-weight:600"></span>
       </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="s-num" id="t-stat-total">0</div><div class="s-lbl">전체</div></div>
-      <div class="stat-box green"><div class="s-num" id="t-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
-      <div class="stat-box orange"><div class="s-num" id="t-stat-late">0</div><div class="s-lbl">늦음</div></div>
-      <div class="stat-box purple"><div class="s-num" id="t-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
-      <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미도착</div></div>
+    <div class="mode-hint" id="t-mode-hint" style="font-size:11px;color:#888;margin-bottom:8px"></div>
+
+    <!-- 일요일 모드 -->
+    <div id="t-mode-sunday">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="s-num" id="t-stat-total">0</div><div class="s-lbl">전체</div></div>
+        <div class="stat-box green"><div class="s-num" id="t-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
+        <div class="stat-box orange"><div class="s-num" id="t-stat-late">0</div><div class="s-lbl">늦음</div></div>
+        <div class="stat-box purple"><div class="s-num" id="t-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
+        <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미도착</div></div>
+      </div>
+      <div class="grade-tabs" id="t-grade-tabs">
+        <button class="grade-tab active" data-grade="0">전체</button>
+        <button class="grade-tab" data-grade="1">1학년</button>
+        <button class="grade-tab" data-grade="2">2학년</button>
+        <button class="grade-tab" data-grade="3">3학년</button>
+      </div>
+      <div class="filter-row" id="t-filter-row">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="ok">귀교</button>
+        <button class="filter-btn" data-filter="late">늦음</button>
+        <button class="filter-btn" data-filter="absent">미귀교</button>
+        <button class="filter-btn" data-filter="miss">미도착</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
+            <tbody id="t-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="t-miss-dashboard"></div>
     </div>
-    <div class="grade-tabs" id="t-grade-tabs">
-      <button class="grade-tab active" data-grade="0">전체</button>
-      <button class="grade-tab" data-grade="1">1학년</button>
-      <button class="grade-tab" data-grade="2">2학년</button>
-      <button class="grade-tab" data-grade="3">3학년</button>
-    </div>
-    <div class="filter-row" id="t-filter-row">
-      <button class="filter-btn active" data-filter="all">전체</button>
-      <button class="filter-btn" data-filter="ok">귀교</button>
-      <button class="filter-btn" data-filter="late">늦음</button>
-      <button class="filter-btn" data-filter="absent">미귀교</button>
-      <button class="filter-btn" data-filter="miss">미도착</button>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
-          <tbody id="t-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
-        </table>
+
+    <!-- 평일 모드 (외출) -->
+    <div id="t-mode-weekday" class="hidden">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="s-num" id="t-out-stat-total">0</div><div class="s-lbl">전체</div></div>
+        <div class="stat-box orange"><div class="s-num" id="t-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
+        <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
+        <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+        <div class="stat-box gray"><div class="s-num" id="t-out-stat-school">0</div><div class="s-lbl">잔류</div></div>
+      </div>
+
+      <div class="out-add-card">
+        <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+        <input type="text" id="t-out-search" placeholder="이름·학번·아이디 검색...">
+        <div id="t-out-search-results" style="margin-top:6px"></div>
+      </div>
+
+      <div class="grade-tabs" id="t-out-grade">
+        <button class="grade-tab active" data-grade="0">전체</button>
+        <button class="grade-tab" data-grade="1">1학년</button>
+        <button class="grade-tab" data-grade="2">2학년</button>
+        <button class="grade-tab" data-grade="3">3학년</button>
+      </div>
+      <div class="filter-row" id="t-out-filter">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="out">외출 중</button>
+        <button class="filter-btn" data-filter="returned">귀교</button>
+        <button class="filter-btn" data-filter="home">귀가</button>
+        <button class="filter-btn" data-filter="school">잔류</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
+            <tbody id="t-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div id="t-miss-dashboard"></div>
+
     <button onclick="window._downloadExcel('t')" class="btn-outline" style="margin-top:8px">📥 엑셀 다운로드</button>
-  </div>
-
-  <!-- 외출 현황 탭 -->
-  <div id="tab-t-outing" class="status-body hidden">
-    <div class="card" style="padding:12px 16px;margin-bottom:10px">
-      <div class="date-row">
-        <label>📅 날짜 선택</label>
-        <input type="date" id="t-out-date">
-        <button id="t-out-btn-refresh" class="btn-refresh">🔄 불러오기</button>
-      </div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="s-num" id="t-out-stat-total">0</div><div class="s-lbl">전체</div></div>
-      <div class="stat-box orange"><div class="s-num" id="t-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
-      <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
-      <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
-      <div class="stat-box gray"><div class="s-num" id="t-out-stat-school">0</div><div class="s-lbl">학교</div></div>
-    </div>
-
-    <div class="out-add-card">
-      <div class="card-title">➕ 학생 추가 / 상태 변경</div>
-      <input type="text" id="t-out-search" placeholder="이름·학번·아이디 검색...">
-      <div id="t-out-search-results" style="margin-top:6px"></div>
-    </div>
-
-    <div class="grade-tabs" id="t-out-grade">
-      <button class="grade-tab active" data-grade="0">전체</button>
-      <button class="grade-tab" data-grade="1">1학년</button>
-      <button class="grade-tab" data-grade="2">2학년</button>
-      <button class="grade-tab" data-grade="3">3학년</button>
-    </div>
-    <div class="filter-row" id="t-out-filter">
-      <button class="filter-btn active" data-filter="all">전체</button>
-      <button class="filter-btn" data-filter="out">외출 중</button>
-      <button class="filter-btn" data-filter="returned">귀교</button>
-      <button class="filter-btn" data-filter="home">귀가</button>
-      <button class="filter-btn" data-filter="school">학교</button>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
-          <tbody id="t-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <!-- 특이사항 탭 -->
@@ -623,7 +621,6 @@
   </div>
   <div class="view-tabs">
     <div class="view-tab active" data-tab="a-status">📊 귀교 현황</div>
-    <div class="view-tab" data-tab="a-outing">🚶 외출 현황</div>
     <div class="view-tab" data-tab="a-students">👥 학생 계정</div>
     <div class="view-tab" data-tab="a-teachers">👩‍🏫 교사 계정</div>
   </div>
@@ -641,83 +638,82 @@
         <span id="a-auto-refresh-status" style="color:#2d6a4f;font-weight:600"></span>
       </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="s-num" id="a-stat-total">0</div><div class="s-lbl">전체</div></div>
-      <div class="stat-box green"><div class="s-num" id="a-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
-      <div class="stat-box orange"><div class="s-num" id="a-stat-late">0</div><div class="s-lbl">늦음</div></div>
-      <div class="stat-box purple"><div class="s-num" id="a-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
-      <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미도착</div></div>
+    <div class="mode-hint" id="a-mode-hint" style="font-size:11px;color:#888;margin-bottom:8px"></div>
+
+    <!-- 일요일 모드 -->
+    <div id="a-mode-sunday">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="s-num" id="a-stat-total">0</div><div class="s-lbl">전체</div></div>
+        <div class="stat-box green"><div class="s-num" id="a-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
+        <div class="stat-box orange"><div class="s-num" id="a-stat-late">0</div><div class="s-lbl">늦음</div></div>
+        <div class="stat-box purple"><div class="s-num" id="a-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
+        <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미도착</div></div>
+      </div>
+      <div class="grade-tabs" id="a-grade-tabs">
+        <button class="grade-tab active" data-grade="0">전체</button>
+        <button class="grade-tab" data-grade="1">1학년</button>
+        <button class="grade-tab" data-grade="2">2학년</button>
+        <button class="grade-tab" data-grade="3">3학년</button>
+      </div>
+      <div class="filter-row" id="a-filter-row">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="ok">귀교</button>
+        <button class="filter-btn" data-filter="late">늦음</button>
+        <button class="filter-btn" data-filter="absent">미귀교</button>
+        <button class="filter-btn" data-filter="miss">미도착</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
+            <tbody id="a-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="a-miss-dashboard"></div>
     </div>
-    <div class="grade-tabs" id="a-grade-tabs">
-      <button class="grade-tab active" data-grade="0">전체</button>
-      <button class="grade-tab" data-grade="1">1학년</button>
-      <button class="grade-tab" data-grade="2">2학년</button>
-      <button class="grade-tab" data-grade="3">3학년</button>
-    </div>
-    <div class="filter-row" id="a-filter-row">
-      <button class="filter-btn active" data-filter="all">전체</button>
-      <button class="filter-btn" data-filter="ok">귀교</button>
-      <button class="filter-btn" data-filter="late">늦음</button>
-      <button class="filter-btn" data-filter="absent">미귀교</button>
-      <button class="filter-btn" data-filter="miss">미도착</button>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>시간</th><th>📱</th><th class="th-items">기타</th><th>사유</th><th>📞</th></tr></thead>
-          <tbody id="a-confirm-tbody"><tr class="empty-row"><td colspan="10">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
-        </table>
+
+    <!-- 평일 모드 (외출) -->
+    <div id="a-mode-weekday" class="hidden">
+      <div class="stats-grid">
+        <div class="stat-box"><div class="s-num" id="a-out-stat-total">0</div><div class="s-lbl">전체</div></div>
+        <div class="stat-box orange"><div class="s-num" id="a-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
+        <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
+        <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+        <div class="stat-box gray"><div class="s-num" id="a-out-stat-school">0</div><div class="s-lbl">잔류</div></div>
+      </div>
+
+      <div class="out-add-card">
+        <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+        <input type="text" id="a-out-search" placeholder="이름·학번·아이디 검색...">
+        <div id="a-out-search-results" style="margin-top:6px"></div>
+      </div>
+
+      <div class="grade-tabs" id="a-out-grade">
+        <button class="grade-tab active" data-grade="0">전체</button>
+        <button class="grade-tab" data-grade="1">1학년</button>
+        <button class="grade-tab" data-grade="2">2학년</button>
+        <button class="grade-tab" data-grade="3">3학년</button>
+      </div>
+      <div class="filter-row" id="a-out-filter">
+        <button class="filter-btn active" data-filter="all">전체</button>
+        <button class="filter-btn" data-filter="out">외출 중</button>
+        <button class="filter-btn" data-filter="returned">귀교</button>
+        <button class="filter-btn" data-filter="home">귀가</button>
+        <button class="filter-btn" data-filter="school">잔류</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
+            <tbody id="a-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div id="a-miss-dashboard"></div>
+
     <button onclick="window._downloadExcel('a')" class="btn-outline" style="margin-top:8px;margin-bottom:6px">📥 엑셀 다운로드</button>
     <button id="a-btn-reset" class="btn-red-outline">🗑️ 해당 날짜 확인 기록 초기화</button>
-  </div>
-
-  <!-- 외출 현황 탭 -->
-  <div id="tab-a-outing" class="status-body hidden">
-    <div class="card" style="padding:12px 16px;margin-bottom:10px">
-      <div class="date-row">
-        <label>📅 날짜 선택</label>
-        <input type="date" id="a-out-date">
-        <button id="a-out-btn-refresh" class="btn-refresh">🔄 불러오기</button>
-      </div>
-    </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="s-num" id="a-out-stat-total">0</div><div class="s-lbl">전체</div></div>
-      <div class="stat-box orange"><div class="s-num" id="a-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
-      <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
-      <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
-      <div class="stat-box gray"><div class="s-num" id="a-out-stat-school">0</div><div class="s-lbl">학교</div></div>
-    </div>
-
-    <div class="out-add-card">
-      <div class="card-title">➕ 학생 추가 / 상태 변경</div>
-      <input type="text" id="a-out-search" placeholder="이름·학번·아이디 검색...">
-      <div id="a-out-search-results" style="margin-top:6px"></div>
-    </div>
-
-    <div class="grade-tabs" id="a-out-grade">
-      <button class="grade-tab active" data-grade="0">전체</button>
-      <button class="grade-tab" data-grade="1">1학년</button>
-      <button class="grade-tab" data-grade="2">2학년</button>
-      <button class="grade-tab" data-grade="3">3학년</button>
-    </div>
-    <div class="filter-row" id="a-out-filter">
-      <button class="filter-btn active" data-filter="all">전체</button>
-      <button class="filter-btn" data-filter="out">외출 중</button>
-      <button class="filter-btn" data-filter="returned">귀교</button>
-      <button class="filter-btn" data-filter="home">귀가</button>
-      <button class="filter-btn" data-filter="school">학교</button>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
-          <tbody id="a-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
   <!-- 학생 계정 탭 -->
@@ -944,6 +940,11 @@
     const d=new Date(today); d.setDate(today.getDate()+(7-day)); return fmtDate(d);
   }
   function getTodayDate(){ return fmtDate(new Date()); }
+  function isSunday(dateStr){
+    if(!dateStr) return false;
+    const [y,m,d]=dateStr.split('-').map(Number);
+    return new Date(y, m-1, d).getDay()===0;
+  }
   function fmtDate(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
@@ -1050,23 +1051,32 @@
     document.getElementById('s-info').textContent=`${user.grade}학년 ${user.class}반 ${user.number}번`;
 
     const dateInput=document.getElementById('s-date-input');
-    dateInput.value=getTargetSunday();
-
-    // 날짜 바뀔 때마다 확인 상태 새로 불러오기
-    dateInput.addEventListener('change', ()=>loadStudentConfirmation(user, dateInput.value));
-
-    await loadStudentConfirmation(user, dateInput.value);
-
-    // 평일 외출 카드
-    const outDate=document.getElementById('s-out-date');
-    outDate.value=getTodayDate();
-    outDate.addEventListener('change', ()=>loadStudentOuting(user, outDate.value));
+    dateInput.value=getTodayDate();
     setupStudentOutingForm(user);
-    await loadStudentOuting(user, outDate.value);
+
+    dateInput.addEventListener('change', ()=>loadStudentForDate(user, dateInput.value));
+    await loadStudentForDate(user, dateInput.value);
+  }
+
+  async function loadStudentForDate(user, date){
+    const sunday=isSunday(date);
+    document.getElementById('s-mode-hint').textContent = sunday
+      ? '🗓 일요일 — 귀교 확인'
+      : '🗓 평일 — 외출/귀가/잔류 입력';
+    // 폼/완료 화면 전부 숨김
+    document.getElementById('confirm-form-wrap').classList.add('hidden');
+    document.getElementById('confirm-done').classList.add('hidden');
+    document.getElementById('s-out-form-wrap').classList.add('hidden');
+    document.getElementById('s-out-done').classList.add('hidden');
+    if(sunday){
+      await loadStudentConfirmation(user, date);
+    } else {
+      await loadStudentOuting(user, date);
+    }
   }
 
   // ─────────────────────────────────────────
-  // 학생 — 평일 외출 신청
+  // 학생 — 평일 외출/귀가/잔류
   // ─────────────────────────────────────────
   let _studentOutCtx={};
   function setupStudentOutingForm(user){
@@ -1075,11 +1085,10 @@
     });
     document.getElementById('s-out-submit').onclick=()=>submitStudentOuting(user);
     document.getElementById('s-out-edit-btn').onclick=()=>{
-      const date=document.getElementById('s-out-date').value;
-      showStudentOutingForm(user, date, _studentOutCtx.data);
+      showStudentOutingForm(_studentOutCtx.data);
     };
     document.getElementById('s-out-return-btn').onclick=async()=>{
-      const date=document.getElementById('s-out-date').value;
+      const date=document.getElementById('s-date-input').value;
       await updateDoc(doc(db,'outings',`${date}_${user.username}`),{returnedAt:serverTimestamp()});
       await loadStudentOuting(user, date);
     };
@@ -1094,7 +1103,7 @@
   async function submitStudentOuting(user){
     const st=_studentOutCtx.selected;
     if(!st){ alert('상태를 선택해주세요.'); return; }
-    const date=document.getElementById('s-out-date').value;
+    const date=document.getElementById('s-date-input').value;
     if(!date){ alert('날짜를 선택해주세요.'); return; }
     const reason=document.getElementById('s-out-reason').value.trim();
     const data={
@@ -1102,7 +1111,6 @@
       grade: user.grade, class: user.class, number: user.number,
       status: st, reason, recordedAt: serverTimestamp(),
     };
-    // 기존 returnedAt 보존
     const prev=_studentOutCtx.data;
     if(prev?.returnedAt && st==='out') data.returnedAt=prev.returnedAt;
     await setDoc(doc(db,'outings',`${date}_${user.username}`), data, {merge:true});
@@ -1116,11 +1124,11 @@
       showStudentOutingDone(_studentOutCtx.data);
     } else {
       _studentOutCtx.data=null;
-      showStudentOutingForm(user, date, null);
+      showStudentOutingForm(null);
     }
   }
-  function showStudentOutingForm(user, date, prefill){
-    document.getElementById('s-out-form').classList.remove('hidden');
+  function showStudentOutingForm(prefill){
+    document.getElementById('s-out-form-wrap').classList.remove('hidden');
     document.getElementById('s-out-done').classList.add('hidden');
     _studentOutCtx.selected=prefill?.status||null;
     ['home','out','school'].forEach(s=>{
@@ -1133,12 +1141,12 @@
     document.getElementById('s-out-reason').value=prefill?.reason||'';
   }
   function showStudentOutingDone(data){
-    document.getElementById('s-out-form').classList.add('hidden');
+    document.getElementById('s-out-form-wrap').classList.add('hidden');
     document.getElementById('s-out-done').classList.remove('hidden');
     const cfg={
       home:   {icon:'🏠', text:'귀가 신청 완료', color:'#0c5460'},
       out:    {icon:'🚶', text:'외출 신청 완료', color:'#b8651d'},
-      school: {icon:'🏫', text:'학교 등록 완료', color:'#383d41'},
+      school: {icon:'🏫', text:'잔류 등록 완료', color:'#383d41'},
     }[data.status]||{icon:'✅',text:'제출 완료',color:'#1e3a5f'};
     document.getElementById('s-out-done-icon').textContent=cfg.icon;
     const doneText=document.getElementById('s-out-done-text');
@@ -1321,9 +1329,21 @@
     }
   }
 
+  function applyMode(p, date){
+    const sunday=isSunday(date);
+    document.getElementById(`${p}-mode-sunday`).classList.toggle('hidden', !sunday);
+    document.getElementById(`${p}-mode-weekday`).classList.toggle('hidden', sunday);
+    const hint=document.getElementById(`${p}-mode-hint`);
+    if(hint) hint.textContent = sunday ? '🗓 일요일 — 귀교/늦음/미귀교 모드' : '🗓 평일 — 외출/귀가/잔류 모드';
+  }
+
   async function loadStatus(p){
     const date=document.getElementById(`${p}-date`).value;
     if(!date){ alert('날짜를 선택해주세요.'); return; }
+    applyMode(p, date);
+    if(!isSunday(date)){
+      return loadOutings(p, date);
+    }
     await ensureStudents();
 
     const cSnap=await getDocs(query(collection(db,'confirmations'),where('date','==',date)));
@@ -1496,6 +1516,9 @@
 
   function setupStatusEvents(p){
     document.getElementById(`${p}-btn-refresh`).addEventListener('click',()=>loadStatus(p).then(()=>startAutoRefresh(p)));
+    document.getElementById(`${p}-date`).addEventListener('change',()=>{
+      applyMode(p, document.getElementById(`${p}-date`).value);
+    });
     document.querySelectorAll(`#${p}-grade-tabs .grade-tab`).forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll(`#${p}-grade-tabs .grade-tab`).forEach(b=>b.classList.remove('active'));
@@ -1513,8 +1536,8 @@
   // ─────────────────────────────────────────
   // 외출 현황 (교사·관리자 공용) — outingsCache는 모듈 상단에서 선언됨
   // ─────────────────────────────────────────
-  async function loadOutings(p){
-    const date=document.getElementById(`${p}-out-date`).value;
+  async function loadOutings(p, dateOverride){
+    const date = dateOverride || document.getElementById(`${p}-date`).value;
     if(!date){ alert('날짜를 선택해주세요.'); return; }
     await ensureStudents();
     const snap=await getDocs(query(collection(db,'outings'),where('date','==',date)));
@@ -1634,7 +1657,6 @@
   };
 
   function setupOutingEvents(p){
-    document.getElementById(`${p}-out-btn-refresh`).addEventListener('click',()=>loadOutings(p));
     document.querySelectorAll(`#${p}-out-grade .grade-tab`).forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll(`#${p}-out-grade .grade-tab`).forEach(b=>b.classList.remove('active'));
@@ -1714,8 +1736,8 @@
   // ─────────────────────────────────────────
   function initTeacher(user){
     document.getElementById('t-header-user').textContent=`${user.name} 선생님`;
-    document.getElementById('t-date').value=getTargetSunday();
-    document.getElementById('t-out-date').value=getTodayDate();
+    document.getElementById('t-date').value=getTodayDate();
+    applyMode('t', document.getElementById('t-date').value);
     setupStatusEvents('t');
     setupOutingEvents('t');
     loadStatus('t').then(()=>startAutoRefresh('t'));
@@ -1725,10 +1747,9 @@
       tab.addEventListener('click',()=>{
         document.querySelectorAll('#view-teacher .view-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
-        ['tab-t-status','tab-t-outing','tab-t-notes'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        ['tab-t-status','tab-t-notes'].forEach(id=>document.getElementById(id).classList.add('hidden'));
         document.getElementById(`tab-${tab.dataset.ttab}`).classList.remove('hidden');
-        if(tab.dataset.ttab==='t-notes')  loadTeacherNotes();
-        if(tab.dataset.ttab==='t-outing') loadOutings('t');
+        if(tab.dataset.ttab==='t-notes') loadTeacherNotes();
       });
     });
   }
@@ -1823,14 +1844,13 @@
       tab.addEventListener('click',()=>{
         document.querySelectorAll('#view-admin .view-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
-        ['tab-a-status','tab-a-outing','tab-a-students','tab-a-teachers'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        ['tab-a-status','tab-a-students','tab-a-teachers'].forEach(id=>document.getElementById(id).classList.add('hidden'));
         document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
-        if(tab.dataset.tab==='a-outing') loadOutings('a');
       });
     });
 
-    document.getElementById('a-date').value=getTargetSunday();
-    document.getElementById('a-out-date').value=getTodayDate();
+    document.getElementById('a-date').value=getTodayDate();
+    applyMode('a', document.getElementById('a-date').value);
     setupStatusEvents('a');
     setupOutingEvents('a');
     document.getElementById('a-btn-reset').addEventListener('click',resetDate);
