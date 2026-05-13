@@ -918,6 +918,9 @@
   // ✏️ 관리자 계정 — 비밀번호를 아래에서 변경하세요
   const ADMIN_ID = 'admin';
   const ADMIN_PW = 'jipyeongseon2024';
+  // ✏️ 학생 화면 미리보기 계정 (Firestore에 저장되지 않음)
+  const PREVIEW_ID = 'preview';
+  const PREVIEW_PW = 'preview2024';
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
@@ -1024,6 +1027,16 @@
       }
     }
 
+    // 학생 미리보기 계정
+    if(id===PREVIEW_ID){
+      if(await sha256(pw)===await sha256(PREVIEW_PW)){
+        if(remember) saveRemembered(id,pw); else clearRemembered();
+        const user={role:'student',username:PREVIEW_ID,name:'미리보기',grade:0,class:0,number:0,preview:true};
+        saveSession(user);
+        await routeUser(user); return;
+      }
+    }
+
     // Firestore 사용자
     const snap=await getDoc(doc(db,'users',id));
     if(!snap.exists()){
@@ -1046,9 +1059,11 @@
   // 학생 화면
   // ─────────────────────────────────────────
   async function initStudent(user){
-    document.getElementById('s-header-user').textContent=`${user.name} 학생`;
+    document.getElementById('s-header-user').textContent = user.preview ? '미리보기 모드' : `${user.name} 학생`;
     document.getElementById('s-name').textContent=user.name;
-    document.getElementById('s-info').textContent=`${user.grade}학년 ${user.class}반 ${user.number}번`;
+    document.getElementById('s-info').textContent = user.preview
+      ? '🔍 미리보기 — 제출해도 저장되지 않습니다'
+      : `${user.grade}학년 ${user.class}반 ${user.number}번`;
 
     const dateInput=document.getElementById('s-date-input');
     dateInput.value=getTodayDate();
@@ -1089,6 +1104,11 @@
     };
     document.getElementById('s-out-return-btn').onclick=async()=>{
       const date=document.getElementById('s-date-input').value;
+      if(user.preview){
+        _studentOutCtx.data={..._studentOutCtx.data, returnedAt:{toDate:()=>new Date()}};
+        showStudentOutingDone(_studentOutCtx.data);
+        return;
+      }
       await updateDoc(doc(db,'outings',`${date}_${user.username}`),{returnedAt:serverTimestamp()});
       await loadStudentOuting(user, date);
     };
@@ -1113,11 +1133,21 @@
     };
     const prev=_studentOutCtx.data;
     if(prev?.returnedAt && st==='out') data.returnedAt=prev.returnedAt;
+    if(user.preview){
+      _studentOutCtx.data={...data, recordedAt:{toDate:()=>new Date()}};
+      showStudentOutingDone(_studentOutCtx.data);
+      return;
+    }
     await setDoc(doc(db,'outings',`${date}_${user.username}`), data, {merge:true});
     await loadStudentOuting(user, date);
   }
   async function loadStudentOuting(user, date){
     if(!date) return;
+    if(user.preview){
+      _studentOutCtx.data=null;
+      showStudentOutingForm(null);
+      return;
+    }
     const snap=await getDoc(doc(db,'outings',`${date}_${user.username}`));
     if(snap.exists()){
       _studentOutCtx.data=snap.data();
@@ -1170,6 +1200,10 @@
 
     if(!targetDate) return;
     const confirmId=`${targetDate}_${user.username}`;
+    if(user.preview){
+      showStudentForm(user, targetDate, confirmId);
+      return;
+    }
     const snap=await getDoc(doc(db,'confirmations',confirmId));
 
     if(snap.exists()){
@@ -1251,15 +1285,20 @@
       const el=document.getElementById(id); if(el) el.disabled=true;
     });
     try{
-      await setDoc(doc(db,'confirmations',confirmId),{
+      const payload={
         date, username:user.username, name:user.name, grade:user.grade,
         class:user.class, number:user.number,
-        status,                          // 'ok' | 'late' | 'absent'
-        isLate: status==='late',         // 하위 호환
+        status, isLate: status==='late',
         phoneReturned, otherItems,
         lateReason, expectedArrival, absentReason,
         confirmedAt:serverTimestamp(),
-      });
+      };
+      if(user.preview){
+        document.getElementById('confirm-form-wrap').classList.add('hidden');
+        showStudentDone({...payload, confirmedAt:{toDate:()=>new Date()}}, user, date, confirmId);
+        return;
+      }
+      await setDoc(doc(db,'confirmations',confirmId),payload);
       document.getElementById('confirm-form-wrap').classList.add('hidden');
       const fresh=await getDoc(doc(db,'confirmations',confirmId));
       showStudentDone(fresh.data(), user, date, confirmId);
