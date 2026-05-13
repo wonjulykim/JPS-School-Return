@@ -1587,7 +1587,7 @@
 
   function renderOutingStats(p){
     const c=outingsCache[p]; if(!c) return;
-    const items=c.items;
+    const items=getOutingRows(c);
     const total=items.length;
     const outNow=items.filter(i=>i.status==='out'&&!i.returnedAt).length;
     const back=items.filter(i=>i.status==='out'&&i.returnedAt).length;
@@ -1600,11 +1600,22 @@
     document.getElementById(`${p}-out-stat-school`).textContent=school;
   }
 
+  function getOutingRows(c){
+    const itemMap=new Map(c.items.map(i=>[i.username,i]));
+    return allStudents.map(s=>{
+      const item=itemMap.get(s.id);
+      return item || {
+        date:c.date, username:s.id, name:s.name, grade:s.grade, class:s.class, number:s.number,
+        status:'school', recordedAt:null, returnedAt:null, isDefaultSchool:true,
+      };
+    });
+  }
+
   function renderOutingTable(p){
     const c=outingsCache[p]; if(!c) return;
     const filter=document.querySelector(`#${p}-out-filter .filter-btn.active`)?.dataset.filter??'all';
     const grade=parseInt(document.querySelector(`#${p}-out-grade .grade-tab.active`)?.dataset.grade??0);
-    let list=[...c.items];
+    let list=getOutingRows(c);
     if(grade) list=list.filter(i=>i.grade===grade);
     if(filter==='out')      list=list.filter(i=>i.status==='out'&&!i.returnedAt);
     if(filter==='returned') list=list.filter(i=>i.status==='out'&&i.returnedAt);
@@ -1618,7 +1629,7 @@
       if(i.status==='out'&&i.returnedAt) badge='<span class="badge-returned">✓ 귀교</span>';
       else if(i.status==='out')          badge='<span class="badge-out">🚶 외출 중</span>';
       else if(i.status==='home')         badge='<span class="badge-home">🏠 귀가</span>';
-      else if(i.status==='school')       badge='<span class="badge-school">🏫 학교</span>';
+      else if(i.status==='school')       badge='<span class="badge-school">🏫 잔류</span>';
       const outTime=i.recordedAt?fmtTime(i.recordedAt):'-';
       const retTime=i.returnedAt?fmtTime(i.returnedAt):'-';
       const action=(i.status==='out'&&!i.returnedAt)
@@ -1626,10 +1637,13 @@
         :(i.status==='out'&&i.returnedAt)
           ?`<button class="btn-undo" onclick="window._outUndoReturn('${p}','${i.username}')">취소</button>`
           :'-';
+      const removeBtn=i.isDefaultSchool
+        ?''
+        :`<button class="btn-del-row" onclick="window._outRemove('${p}','${i.username}')">✕</button>`;
       return `<tr>
         <td>${i.grade}</td><td>${i.class}</td><td>${i.number}</td><td>${i.name}</td>
         <td>${badge}</td><td>${outTime}</td><td>${retTime}</td><td>${action}</td>
-        <td><button class="btn-del-row" onclick="window._outRemove('${p}','${i.username}')">✕</button></td>
+        <td>${removeBtn}</td>
       </tr>`;
     }).join('');
   }
@@ -1670,7 +1684,7 @@
         <span class="out-sr-name"><strong>${s.name}</strong> <span style="color:#666">${s.grade}학년 ${s.class}반 ${s.number}번</span></span>
         <button class="out-status-btn out" onclick="window._outAdd('${p}','${s.id}','out')">🚶 외출</button>
         <button class="out-status-btn home" onclick="window._outAdd('${p}','${s.id}','home')">🏠 귀가</button>
-        <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 학교</button>
+        <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 잔류</button>
       </div>
     `).join('');
   };
@@ -2148,6 +2162,29 @@
   window._downloadExcel=(p)=>{
     const date=document.getElementById(`${p}-date`).value;
     if(!date){ alert('날짜를 먼저 선택하고 불러오기를 눌러주세요.'); return; }
+    if(!isSunday(date)){
+      const outingCache=outingsCache[p];
+      if(!outingCache){ alert('데이터를 먼저 불러와주세요.'); return; }
+      const rows=[['학년','반','번호','이름','상태','외출 시간','귀교 시간','사유','전화번호']];
+      getOutingRows(outingCache).forEach(i=>{
+        const statusLabel=i.status==='out'
+          ?(i.returnedAt?'귀교':'외출 중')
+          :i.status==='home'?'귀가':'잔류';
+        rows.push([
+          i.grade, i.class, i.number, i.name, statusLabel,
+          i.recordedAt?fmtTime(i.recordedAt):'-',
+          i.returnedAt?fmtTime(i.returnedAt):'-',
+          i.reason||'-',
+          allStudents.find(s=>s.id===i.username)?.phone||''
+        ]);
+      });
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:6},{wch:4},{wch:5},{wch:8},{wch:14},{wch:10},{wch:10},{wch:24},{wch:14}];
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,'외출현황');
+      XLSX.writeFile(wb,`외출현황_${date}.xlsx`);
+      return;
+    }
     const cache=statusCache[p];
     if(!cache){ alert('데이터를 먼저 불러와주세요.'); return; }
     const {confirmed,absences}=cache;
