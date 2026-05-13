@@ -211,6 +211,26 @@
     .btn-bulk-del:disabled { background: #ccc; cursor: not-allowed; }
     td input[type=checkbox] { width: 15px; height: 15px; cursor: pointer; }
 
+    /* 외출 현황 */
+    .badge-out      { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #ffe8c4; color: #b8651d; }
+    .badge-home     { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #d1ecf1; color: #0c5460; }
+    .badge-school   { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #e2e3e5; color: #383d41; }
+    .badge-returned { display: inline-block; padding: 3px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; background: #d4edda; color: #155724; }
+    .stat-box.blue .s-num { color: #0c5460; }
+    .stat-box.gray .s-num { color: #555; }
+    .btn-return { padding: 6px 12px; background: linear-gradient(135deg,#2d6a4f,#40916c); color: white; border: none; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; font-family: inherit; box-shadow: 0 2px 6px rgba(45,106,79,0.25); }
+    .btn-return:active { transform: scale(0.97); }
+    .btn-undo { padding: 5px 9px; background: white; color: #888; border: 1.5px solid #ddd; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-del-row { padding: 5px 7px; background: white; color: #c0392b; border: 1.5px solid #f8d7da; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .out-add-card { background: #fff8f0; border: 2px dashed #f5c36d; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+    .out-add-card .card-title { color: #b8651d; margin-bottom: 8px; }
+    .out-search-result { display: flex; gap: 6px; align-items: center; padding: 8px 10px; margin-bottom: 4px; background: white; border-radius: 8px; border: 1.5px solid #e0e0e0; flex-wrap: wrap; }
+    .out-search-result .out-sr-name { flex: 1; min-width: 140px; font-size: 13px; }
+    .out-status-btn { padding: 6px 10px; border: none; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .out-status-btn.out  { background: #ffe8c4; color: #b8651d; }
+    .out-status-btn.home { background: #d1ecf1; color: #0c5460; }
+    .out-status-btn.school { background: #e2e3e5; color: #383d41; }
+
     /* MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
     .modal-box { background: white; border-radius: 20px; padding: 22px; width: 100%; max-width: 400px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
@@ -433,6 +453,40 @@
       <div class="cd-detail" id="cd-detail"></div>
       <button id="btn-edit-confirm" class="btn-edit">✏️ 수정하기</button>
     </div>
+
+    <!-- 평일 외출 카드 -->
+    <div class="s-date-card" style="margin-top:8px;background:#fff8f0;border:2px solid #f5c36d">
+      <div class="d-label" style="color:#b8651d">🚶 평일 외출 (오늘)</div>
+      <input type="date" id="s-out-date" style="margin-bottom:10px">
+      <div id="s-out-form">
+        <div class="sc-row">
+          <button class="sc-btn" id="s-out-choice-home">
+            <div class="sc-icon">🏠</div>
+            <div class="sc-label">귀가</div>
+            <div class="sc-sub">집에 감</div>
+          </button>
+          <button class="sc-btn" id="s-out-choice-out">
+            <div class="sc-icon">🚶</div>
+            <div class="sc-label">외출</div>
+            <div class="sc-sub">나갔다 옴</div>
+          </button>
+          <button class="sc-btn" id="s-out-choice-school">
+            <div class="sc-icon">🏫</div>
+            <div class="sc-label">학교</div>
+            <div class="sc-sub">학교에 있음</div>
+          </button>
+        </div>
+        <textarea id="s-out-reason" placeholder="사유 (선택)" style="min-height:50px;margin-top:4px"></textarea>
+        <button id="s-out-submit" class="btn-confirm" style="margin-top:8px;display:block;margin-left:auto;margin-right:auto;background:linear-gradient(135deg,#e67e22,#f39c12);box-shadow:0 6px 20px rgba(230,126,34,0.3)">제출</button>
+      </div>
+      <div id="s-out-done" class="hidden" style="text-align:center;padding:8px">
+        <div id="s-out-done-icon" style="font-size:36px;margin-bottom:4px">✅</div>
+        <div id="s-out-done-text" style="font-weight:900;font-size:16px;margin-bottom:4px">제출 완료</div>
+        <div id="s-out-done-detail" style="font-size:12px;color:#666;margin-bottom:8px"></div>
+        <button id="s-out-return-btn" class="btn-confirm hidden" style="background:linear-gradient(135deg,#2d6a4f,#40916c);box-shadow:0 6px 20px rgba(45,106,79,0.3);font-size:16px;padding:14px 18px;display:inline-block;width:auto">🏫 귀교 표시</button>
+        <button id="s-out-edit-btn" class="btn-edit" style="margin-top:6px">✏️ 수정하기</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -447,6 +501,7 @@
   </div>
   <div class="view-tabs">
     <div class="view-tab active" data-ttab="t-status">📊 귀교 현황</div>
+    <div class="view-tab" data-ttab="t-outing">🚶 외출 현황</div>
     <div class="view-tab" data-ttab="t-notes">📝 특이사항</div>
   </div>
 
@@ -495,6 +550,52 @@
     <button onclick="window._downloadExcel('t')" class="btn-outline" style="margin-top:8px">📥 엑셀 다운로드</button>
   </div>
 
+  <!-- 외출 현황 탭 -->
+  <div id="tab-t-outing" class="status-body hidden">
+    <div class="card" style="padding:12px 16px;margin-bottom:10px">
+      <div class="date-row">
+        <label>📅 날짜 선택</label>
+        <input type="date" id="t-out-date">
+        <button id="t-out-btn-refresh" class="btn-refresh">🔄 불러오기</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="s-num" id="t-out-stat-total">0</div><div class="s-lbl">전체</div></div>
+      <div class="stat-box orange"><div class="s-num" id="t-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
+      <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
+      <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+      <div class="stat-box gray"><div class="s-num" id="t-out-stat-school">0</div><div class="s-lbl">학교</div></div>
+    </div>
+
+    <div class="out-add-card">
+      <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+      <input type="text" id="t-out-search" placeholder="이름·학번·아이디 검색...">
+      <div id="t-out-search-results" style="margin-top:6px"></div>
+    </div>
+
+    <div class="grade-tabs" id="t-out-grade">
+      <button class="grade-tab active" data-grade="0">전체</button>
+      <button class="grade-tab" data-grade="1">1학년</button>
+      <button class="grade-tab" data-grade="2">2학년</button>
+      <button class="grade-tab" data-grade="3">3학년</button>
+    </div>
+    <div class="filter-row" id="t-out-filter">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="out">외출 중</button>
+      <button class="filter-btn" data-filter="returned">귀교</button>
+      <button class="filter-btn" data-filter="home">귀가</button>
+      <button class="filter-btn" data-filter="school">학교</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
+          <tbody id="t-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- 특이사항 탭 -->
   <div id="tab-t-notes" class="status-body hidden">
     <div class="card">
@@ -522,6 +623,7 @@
   </div>
   <div class="view-tabs">
     <div class="view-tab active" data-tab="a-status">📊 귀교 현황</div>
+    <div class="view-tab" data-tab="a-outing">🚶 외출 현황</div>
     <div class="view-tab" data-tab="a-students">👥 학생 계정</div>
     <div class="view-tab" data-tab="a-teachers">👩‍🏫 교사 계정</div>
   </div>
@@ -570,6 +672,52 @@
     <div id="a-miss-dashboard"></div>
     <button onclick="window._downloadExcel('a')" class="btn-outline" style="margin-top:8px;margin-bottom:6px">📥 엑셀 다운로드</button>
     <button id="a-btn-reset" class="btn-red-outline">🗑️ 해당 날짜 확인 기록 초기화</button>
+  </div>
+
+  <!-- 외출 현황 탭 -->
+  <div id="tab-a-outing" class="status-body hidden">
+    <div class="card" style="padding:12px 16px;margin-bottom:10px">
+      <div class="date-row">
+        <label>📅 날짜 선택</label>
+        <input type="date" id="a-out-date">
+        <button id="a-out-btn-refresh" class="btn-refresh">🔄 불러오기</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box"><div class="s-num" id="a-out-stat-total">0</div><div class="s-lbl">전체</div></div>
+      <div class="stat-box orange"><div class="s-num" id="a-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
+      <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
+      <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+      <div class="stat-box gray"><div class="s-num" id="a-out-stat-school">0</div><div class="s-lbl">학교</div></div>
+    </div>
+
+    <div class="out-add-card">
+      <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+      <input type="text" id="a-out-search" placeholder="이름·학번·아이디 검색...">
+      <div id="a-out-search-results" style="margin-top:6px"></div>
+    </div>
+
+    <div class="grade-tabs" id="a-out-grade">
+      <button class="grade-tab active" data-grade="0">전체</button>
+      <button class="grade-tab" data-grade="1">1학년</button>
+      <button class="grade-tab" data-grade="2">2학년</button>
+      <button class="grade-tab" data-grade="3">3학년</button>
+    </div>
+    <div class="filter-row" id="a-out-filter">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="out">외출 중</button>
+      <button class="filter-btn" data-filter="returned">귀교</button>
+      <button class="filter-btn" data-filter="home">귀가</button>
+      <button class="filter-btn" data-filter="school">학교</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>학년</th><th>반</th><th>번호</th><th>이름</th><th>상태</th><th>외출시간</th><th>귀교시간</th><th>액션</th><th></th></tr></thead>
+          <tbody id="a-out-tbody"><tr class="empty-row"><td colspan="9">날짜 선택 후 불러오기를 누르세요</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- 학생 계정 탭 -->
@@ -790,6 +938,7 @@
     if(day===0) return fmtDate(today);
     const d=new Date(today); d.setDate(today.getDate()+(7-day)); return fmtDate(d);
   }
+  function getTodayDate(){ return fmtDate(new Date()); }
   function fmtDate(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
@@ -902,6 +1051,103 @@
     dateInput.addEventListener('change', ()=>loadStudentConfirmation(user, dateInput.value));
 
     await loadStudentConfirmation(user, dateInput.value);
+
+    // 평일 외출 카드
+    const outDate=document.getElementById('s-out-date');
+    outDate.value=getTodayDate();
+    outDate.addEventListener('change', ()=>loadStudentOuting(user, outDate.value));
+    setupStudentOutingForm(user);
+    await loadStudentOuting(user, outDate.value);
+  }
+
+  // ─────────────────────────────────────────
+  // 학생 — 평일 외출 신청
+  // ─────────────────────────────────────────
+  let _studentOutCtx={};
+  function setupStudentOutingForm(user){
+    ['home','out','school'].forEach(st=>{
+      document.getElementById(`s-out-choice-${st}`).onclick=()=>selectStudentOutingChoice(st);
+    });
+    document.getElementById('s-out-submit').onclick=()=>submitStudentOuting(user);
+    document.getElementById('s-out-edit-btn').onclick=()=>{
+      const date=document.getElementById('s-out-date').value;
+      showStudentOutingForm(user, date, _studentOutCtx.data);
+    };
+    document.getElementById('s-out-return-btn').onclick=async()=>{
+      const date=document.getElementById('s-out-date').value;
+      await updateDoc(doc(db,'outings',`${date}_${user.username}`),{returnedAt:serverTimestamp()});
+      await loadStudentOuting(user, date);
+    };
+  }
+  function selectStudentOutingChoice(st){
+    ['home','out','school'].forEach(s=>{
+      document.getElementById(`s-out-choice-${s}`).className='sc-btn';
+    });
+    document.getElementById(`s-out-choice-${st}`).className=`sc-btn active-${st==='out'?'late':st==='home'?'ok':'absent'}`;
+    _studentOutCtx.selected=st;
+  }
+  async function submitStudentOuting(user){
+    const st=_studentOutCtx.selected;
+    if(!st){ alert('상태를 선택해주세요.'); return; }
+    const date=document.getElementById('s-out-date').value;
+    if(!date){ alert('날짜를 선택해주세요.'); return; }
+    const reason=document.getElementById('s-out-reason').value.trim();
+    const data={
+      date, username: user.username, name: user.name,
+      grade: user.grade, class: user.class, number: user.number,
+      status: st, reason, recordedAt: serverTimestamp(),
+    };
+    // 기존 returnedAt 보존
+    const prev=_studentOutCtx.data;
+    if(prev?.returnedAt && st==='out') data.returnedAt=prev.returnedAt;
+    await setDoc(doc(db,'outings',`${date}_${user.username}`), data, {merge:true});
+    await loadStudentOuting(user, date);
+  }
+  async function loadStudentOuting(user, date){
+    if(!date) return;
+    const snap=await getDoc(doc(db,'outings',`${date}_${user.username}`));
+    if(snap.exists()){
+      _studentOutCtx.data=snap.data();
+      showStudentOutingDone(_studentOutCtx.data);
+    } else {
+      _studentOutCtx.data=null;
+      showStudentOutingForm(user, date, null);
+    }
+  }
+  function showStudentOutingForm(user, date, prefill){
+    document.getElementById('s-out-form').classList.remove('hidden');
+    document.getElementById('s-out-done').classList.add('hidden');
+    _studentOutCtx.selected=prefill?.status||null;
+    ['home','out','school'].forEach(s=>{
+      document.getElementById(`s-out-choice-${s}`).className='sc-btn';
+    });
+    if(prefill?.status){
+      const cls=prefill.status==='out'?'late':prefill.status==='home'?'ok':'absent';
+      document.getElementById(`s-out-choice-${prefill.status}`).className=`sc-btn active-${cls}`;
+    }
+    document.getElementById('s-out-reason').value=prefill?.reason||'';
+  }
+  function showStudentOutingDone(data){
+    document.getElementById('s-out-form').classList.add('hidden');
+    document.getElementById('s-out-done').classList.remove('hidden');
+    const cfg={
+      home:   {icon:'🏠', text:'귀가 신청 완료', color:'#0c5460'},
+      out:    {icon:'🚶', text:'외출 신청 완료', color:'#b8651d'},
+      school: {icon:'🏫', text:'학교 등록 완료', color:'#383d41'},
+    }[data.status]||{icon:'✅',text:'제출 완료',color:'#1e3a5f'};
+    document.getElementById('s-out-done-icon').textContent=cfg.icon;
+    const doneText=document.getElementById('s-out-done-text');
+    doneText.textContent=cfg.text;
+    doneText.style.color=cfg.color;
+    let detail='';
+    if(data.reason) detail+=`사유: ${data.reason}<br>`;
+    if(data.status==='out' && data.returnedAt){
+      detail+=`<span style="color:#2d6a4f;font-weight:700">✓ 귀교 완료 — ${fmtTime(data.returnedAt)}</span>`;
+    }
+    document.getElementById('s-out-done-detail').innerHTML=detail;
+    const retBtn=document.getElementById('s-out-return-btn');
+    if(data.status==='out' && !data.returnedAt) retBtn.classList.remove('hidden');
+    else retBtn.classList.add('hidden');
   }
 
   async function loadStudentConfirmation(user, targetDate){
@@ -1261,6 +1507,148 @@
     });
   }
 
+  // ─────────────────────────────────────────
+  // 외출 현황 (교사·관리자 공용)
+  // ─────────────────────────────────────────
+  let outingsCache={}; // {p: {date, items: [...]}}
+
+  async function loadOutings(p){
+    const date=document.getElementById(`${p}-out-date`).value;
+    if(!date){ alert('날짜를 선택해주세요.'); return; }
+    await ensureStudents();
+    const snap=await getDocs(query(collection(db,'outings'),where('date','==',date)));
+    const items=snap.docs.map(d=>d.data());
+    outingsCache[p]={date,items};
+    renderOutingStats(p); renderOutingTable(p);
+  }
+
+  function renderOutingStats(p){
+    const c=outingsCache[p]; if(!c) return;
+    const items=c.items;
+    const total=items.length;
+    const outNow=items.filter(i=>i.status==='out'&&!i.returnedAt).length;
+    const back=items.filter(i=>i.status==='out'&&i.returnedAt).length;
+    const home=items.filter(i=>i.status==='home').length;
+    const school=items.filter(i=>i.status==='school').length;
+    document.getElementById(`${p}-out-stat-total`).textContent=total;
+    document.getElementById(`${p}-out-stat-now`).textContent=outNow;
+    document.getElementById(`${p}-out-stat-back`).textContent=back;
+    document.getElementById(`${p}-out-stat-home`).textContent=home;
+    document.getElementById(`${p}-out-stat-school`).textContent=school;
+  }
+
+  function renderOutingTable(p){
+    const c=outingsCache[p]; if(!c) return;
+    const filter=document.querySelector(`#${p}-out-filter .filter-btn.active`)?.dataset.filter??'all';
+    const grade=parseInt(document.querySelector(`#${p}-out-grade .grade-tab.active`)?.dataset.grade??0);
+    let list=[...c.items];
+    if(grade) list=list.filter(i=>i.grade===grade);
+    if(filter==='out')      list=list.filter(i=>i.status==='out'&&!i.returnedAt);
+    if(filter==='returned') list=list.filter(i=>i.status==='out'&&i.returnedAt);
+    if(filter==='home')     list=list.filter(i=>i.status==='home');
+    if(filter==='school')   list=list.filter(i=>i.status==='school');
+    list.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
+    const tbody=document.getElementById(`${p}-out-tbody`);
+    if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">데이터 없음</td></tr>'; return; }
+    tbody.innerHTML=list.map(i=>{
+      let badge='';
+      if(i.status==='out'&&i.returnedAt) badge='<span class="badge-returned">✓ 귀교</span>';
+      else if(i.status==='out')          badge='<span class="badge-out">🚶 외출 중</span>';
+      else if(i.status==='home')         badge='<span class="badge-home">🏠 귀가</span>';
+      else if(i.status==='school')       badge='<span class="badge-school">🏫 학교</span>';
+      const outTime=i.recordedAt?fmtTime(i.recordedAt):'-';
+      const retTime=i.returnedAt?fmtTime(i.returnedAt):'-';
+      const action=(i.status==='out'&&!i.returnedAt)
+        ?`<button class="btn-return" onclick="window._outReturn('${p}','${i.username}')">귀교</button>`
+        :(i.status==='out'&&i.returnedAt)
+          ?`<button class="btn-undo" onclick="window._outUndoReturn('${p}','${i.username}')">취소</button>`
+          :'-';
+      return `<tr>
+        <td>${i.grade}</td><td>${i.class}</td><td>${i.number}</td><td>${i.name}</td>
+        <td>${badge}</td><td>${outTime}</td><td>${retTime}</td><td>${action}</td>
+        <td><button class="btn-del-row" onclick="window._outRemove('${p}','${i.username}')">✕</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  window._outReturn=async(p,username)=>{
+    const c=outingsCache[p]; if(!c) return;
+    const item=c.items.find(i=>i.username===username); if(!item) return;
+    await updateDoc(doc(db,'outings',`${c.date}_${username}`),{returnedAt:serverTimestamp()});
+    item.returnedAt={toDate:()=>new Date()};
+    renderOutingStats(p); renderOutingTable(p);
+  };
+  window._outUndoReturn=async(p,username)=>{
+    const c=outingsCache[p]; if(!c) return;
+    const item=c.items.find(i=>i.username===username); if(!item) return;
+    await updateDoc(doc(db,'outings',`${c.date}_${username}`),{returnedAt:null});
+    item.returnedAt=null;
+    renderOutingStats(p); renderOutingTable(p);
+  };
+  window._outRemove=async(p,username)=>{
+    const c=outingsCache[p]; if(!c) return;
+    if(!confirm('이 학생을 외출 명단에서 제거할까요?')) return;
+    await deleteDoc(doc(db,'outings',`${c.date}_${username}`));
+    c.items=c.items.filter(i=>i.username!==username);
+    renderOutingStats(p); renderOutingTable(p);
+  };
+  window._outSearch=(p)=>{
+    const q=document.getElementById(`${p}-out-search`).value.trim().toLowerCase();
+    const resEl=document.getElementById(`${p}-out-search-results`);
+    if(!q){ resEl.innerHTML=''; return; }
+    const matches=allStudents.filter(s=>
+      s.name.toLowerCase().includes(q)||
+      `${s.grade}학년 ${s.class}반 ${s.number}번`.includes(q)||
+      s.id.toLowerCase().includes(q)
+    ).slice(0,6);
+    if(!matches.length){ resEl.innerHTML='<div style="color:#aaa;font-size:12px;padding:6px">검색 결과 없음</div>'; return; }
+    resEl.innerHTML=matches.map(s=>`
+      <div class="out-search-result">
+        <span class="out-sr-name"><strong>${s.name}</strong> <span style="color:#666">${s.grade}학년 ${s.class}반 ${s.number}번</span></span>
+        <button class="out-status-btn out" onclick="window._outAdd('${p}','${s.id}','out')">🚶 외출</button>
+        <button class="out-status-btn home" onclick="window._outAdd('${p}','${s.id}','home')">🏠 귀가</button>
+        <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 학교</button>
+      </div>
+    `).join('');
+  };
+  window._outAdd=async(p,username,status)=>{
+    const c=outingsCache[p]; if(!c) return;
+    const s=allStudents.find(x=>x.id===username); if(!s) return;
+    const existing=c.items.find(i=>i.username===username);
+    const data={
+      date:c.date, username, name:s.name, grade:s.grade, class:s.class, number:s.number,
+      status, recordedAt: serverTimestamp(),
+    };
+    if(existing && existing.returnedAt) data.returnedAt = existing.returnedAt;
+    await setDoc(doc(db,'outings',`${c.date}_${username}`), data, {merge:true});
+    const localData={...data, recordedAt:{toDate:()=>new Date()}};
+    if(existing){
+      Object.assign(existing, {status, recordedAt: localData.recordedAt});
+    } else {
+      c.items.push(localData);
+    }
+    document.getElementById(`${p}-out-search`).value='';
+    document.getElementById(`${p}-out-search-results`).innerHTML='';
+    renderOutingStats(p); renderOutingTable(p);
+  };
+
+  function setupOutingEvents(p){
+    document.getElementById(`${p}-out-btn-refresh`).addEventListener('click',()=>loadOutings(p));
+    document.querySelectorAll(`#${p}-out-grade .grade-tab`).forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll(`#${p}-out-grade .grade-tab`).forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); renderOutingTable(p);
+      });
+    });
+    document.querySelectorAll(`#${p}-out-filter .filter-btn`).forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll(`#${p}-out-filter .filter-btn`).forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); renderOutingTable(p);
+      });
+    });
+    document.getElementById(`${p}-out-search`).addEventListener('input',()=>window._outSearch(p));
+  }
+
   // 미귀교 사유 모달
   let _rCtx={};
   window._openReason=(username,name,date,p)=>{
@@ -1326,7 +1714,9 @@
   function initTeacher(user){
     document.getElementById('t-header-user').textContent=`${user.name} 선생님`;
     document.getElementById('t-date').value=getTargetSunday();
+    document.getElementById('t-out-date').value=getTodayDate();
     setupStatusEvents('t');
+    setupOutingEvents('t');
     loadStatus('t').then(()=>startAutoRefresh('t'));
 
     // 교사 탭 전환
@@ -1334,9 +1724,10 @@
       tab.addEventListener('click',()=>{
         document.querySelectorAll('#view-teacher .view-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
-        ['tab-t-status','tab-t-notes'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        ['tab-t-status','tab-t-outing','tab-t-notes'].forEach(id=>document.getElementById(id).classList.add('hidden'));
         document.getElementById(`tab-${tab.dataset.ttab}`).classList.remove('hidden');
-        if(tab.dataset.ttab==='t-notes') loadTeacherNotes();
+        if(tab.dataset.ttab==='t-notes')  loadTeacherNotes();
+        if(tab.dataset.ttab==='t-outing') loadOutings('t');
       });
     });
   }
@@ -1431,13 +1822,16 @@
       tab.addEventListener('click',()=>{
         document.querySelectorAll('#view-admin .view-tab').forEach(t=>t.classList.remove('active'));
         tab.classList.add('active');
-        ['tab-a-status','tab-a-students','tab-a-teachers'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+        ['tab-a-status','tab-a-outing','tab-a-students','tab-a-teachers'].forEach(id=>document.getElementById(id).classList.add('hidden'));
         document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+        if(tab.dataset.tab==='a-outing') loadOutings('a');
       });
     });
 
     document.getElementById('a-date').value=getTargetSunday();
+    document.getElementById('a-out-date').value=getTodayDate();
     setupStatusEvents('a');
+    setupOutingEvents('a');
     document.getElementById('a-btn-reset').addEventListener('click',resetDate);
     document.getElementById('btn-add-student').addEventListener('click',addStudent);
     document.getElementById('csv-student').addEventListener('change',handleStudentCSV);
