@@ -101,12 +101,13 @@
     .status-body { padding: 14px; }
     .card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     .card-title { font-size: 13px; font-weight: 700; color: #1e3a5f; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .stats-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 12px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 12px; }
     .stat-box { background: #f5f7fa; border-radius: 12px; padding: 12px 6px; text-align: center; }
     .stat-box .s-num { font-size: 26px; font-weight: 900; color: #1e3a5f; }
     .stat-box.green .s-num { color: #2d6a4f; }
     .stat-box.orange .s-num { color: #e67e22; }
     .stat-box.red .s-num { color: #c0392b; }
+    .stat-box.purple .s-num { color: #6a0dad; }
     .stat-box .s-lbl { font-size: 11px; color: #888; margin-top: 2px; }
     .grade-tabs { display: flex; gap: 6px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; }
     .grade-tab { padding: 8px 14px; border: 2px solid #e0e0e0; border-radius: 20px; background: white; font-size: 12px; font-weight: 700; color: #666; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; transition: all 0.15s; }
@@ -254,6 +255,7 @@
       .status-body   { padding: 10px; }
       .card          { padding: 12px 10px; }
       .stats-grid    { grid-template-columns: repeat(2,1fr); gap: 6px; }
+      .stats-grid .stat-box:nth-child(5) { grid-column: span 2; }
       .stat-box .s-num { font-size: 22px; }
 
       /* 날짜 행 */
@@ -465,7 +467,8 @@
       <div class="stat-box"><div class="s-num" id="t-stat-total">0</div><div class="s-lbl">전체</div></div>
       <div class="stat-box green"><div class="s-num" id="t-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
       <div class="stat-box orange"><div class="s-num" id="t-stat-late">0</div><div class="s-lbl">늦음</div></div>
-      <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미귀교</div></div>
+      <div class="stat-box purple"><div class="s-num" id="t-stat-absent">0</div><div class="s-lbl">미귀교 (자진신고)</div></div>
+      <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미확인 (미도착)</div></div>
     </div>
     <div class="grade-tabs" id="t-grade-tabs">
       <button class="grade-tab active" data-grade="0">전체</button>
@@ -477,7 +480,8 @@
       <button class="filter-btn active" data-filter="all">전체</button>
       <button class="filter-btn" data-filter="ok">귀교</button>
       <button class="filter-btn" data-filter="late">늦음</button>
-      <button class="filter-btn" data-filter="miss">미귀교</button>
+      <button class="filter-btn" data-filter="absent">미귀교</button>
+      <button class="filter-btn" data-filter="miss">미확인</button>
     </div>
     <div class="card">
       <div class="table-wrap">
@@ -539,7 +543,8 @@
       <div class="stat-box"><div class="s-num" id="a-stat-total">0</div><div class="s-lbl">전체</div></div>
       <div class="stat-box green"><div class="s-num" id="a-stat-ok">0</div><div class="s-lbl">귀교 완료</div></div>
       <div class="stat-box orange"><div class="s-num" id="a-stat-late">0</div><div class="s-lbl">늦음</div></div>
-      <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미귀교</div></div>
+      <div class="stat-box purple"><div class="s-num" id="a-stat-absent">0</div><div class="s-lbl">미귀교 (자진신고)</div></div>
+      <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미확인 (미도착)</div></div>
     </div>
     <div class="grade-tabs" id="a-grade-tabs">
       <button class="grade-tab active" data-grade="0">전체</button>
@@ -551,7 +556,8 @@
       <button class="filter-btn active" data-filter="all">전체</button>
       <button class="filter-btn" data-filter="ok">귀교</button>
       <button class="filter-btn" data-filter="late">늦음</button>
-      <button class="filter-btn" data-filter="miss">미귀교</button>
+      <button class="filter-btn" data-filter="absent">미귀교</button>
+      <button class="filter-btn" data-filter="miss">미확인</button>
     </div>
     <div class="card">
       <div class="table-wrap">
@@ -1084,11 +1090,13 @@
     const total=allStudents.length;
     const okCnt=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='ok'; }).length;
     const lateCnt=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; }).length;
-    const missCnt=total-okCnt-lateCnt; // 미확인 + 미귀교 자진신고 포함
+    const absentCnt=allStudents.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='absent'; }).length;
+    const missCnt=total-okCnt-lateCnt-absentCnt; // 미확인(미도착)만
 
     document.getElementById(`${p}-stat-total`).textContent=total;
     document.getElementById(`${p}-stat-ok`).textContent=okCnt;
     document.getElementById(`${p}-stat-late`).textContent=lateCnt;
+    document.getElementById(`${p}-stat-absent`).textContent=absentCnt;
     document.getElementById(`${p}-stat-miss`).textContent=missCnt;
 
     renderStatusTable(p); renderMissDash(p);
@@ -1105,9 +1113,10 @@
     const date=document.getElementById(`${p}-date`).value;
 
     let list=grade?allStudents.filter(s=>s.grade===grade):allStudents;
-    if(filter==='ok')   list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='ok'; });
-    if(filter==='late') list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; });
-    if(filter==='miss') list=list.filter(s=>{ const c=confirmed[s.id]; return !c||getConfirmStatus(c)==='absent'; });
+    if(filter==='ok')     list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='ok'; });
+    if(filter==='late')   list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='late'; });
+    if(filter==='absent') list=list.filter(s=>{ const c=confirmed[s.id]; return c&&getConfirmStatus(c)==='absent'; });
+    if(filter==='miss')   list=list.filter(s=>!confirmed[s.id]);
 
     if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="10">데이터 없음</td></tr>'; return; }
 
