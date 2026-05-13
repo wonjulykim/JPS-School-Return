@@ -472,8 +472,8 @@
           </button>
           <button class="sc-btn" id="s-out-choice-school">
             <div class="sc-icon">🏫</div>
-            <div class="sc-label">잔류</div>
-            <div class="sc-sub">학교에 남음</div>
+            <div class="sc-label">귀교</div>
+            <div class="sc-sub">학교에 있음</div>
           </button>
         </div>
         <textarea id="s-out-reason" placeholder="사유 (선택)" style="min-height:50px;margin-top:4px"></textarea>
@@ -528,6 +528,11 @@
         <div class="stat-box purple"><div class="s-num" id="t-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
         <div class="stat-box red"><div class="s-num" id="t-stat-miss">0</div><div class="s-lbl">미도착</div></div>
       </div>
+      <div class="out-add-card">
+        <div class="card-title">🔍 학생 검색</div>
+        <input type="text" id="t-status-search" placeholder="이름·학번·아이디 검색...">
+        <div id="t-status-search-results" style="margin-top:6px"></div>
+      </div>
       <div class="grade-tabs" id="t-grade-tabs">
         <button class="grade-tab active" data-grade="0">전체</button>
         <button class="grade-tab" data-grade="1">1학년</button>
@@ -559,11 +564,10 @@
         <div class="stat-box orange"><div class="s-num" id="t-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
         <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
-        <div class="stat-box gray"><div class="s-num" id="t-out-stat-school">0</div><div class="s-lbl">잔류</div></div>
       </div>
 
       <div class="out-add-card">
-        <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+        <div class="card-title">🔍 학생 검색</div>
         <input type="text" id="t-out-search" placeholder="이름·학번·아이디 검색...">
         <div id="t-out-search-results" style="margin-top:6px"></div>
       </div>
@@ -579,7 +583,6 @@
         <button class="filter-btn" data-filter="out">외출 중</button>
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
-        <button class="filter-btn" data-filter="school">잔류</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -649,6 +652,11 @@
         <div class="stat-box purple"><div class="s-num" id="a-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
         <div class="stat-box red"><div class="s-num" id="a-stat-miss">0</div><div class="s-lbl">미도착</div></div>
       </div>
+      <div class="out-add-card">
+        <div class="card-title">🔍 학생 검색</div>
+        <input type="text" id="a-status-search" placeholder="이름·학번·아이디 검색...">
+        <div id="a-status-search-results" style="margin-top:6px"></div>
+      </div>
       <div class="grade-tabs" id="a-grade-tabs">
         <button class="grade-tab active" data-grade="0">전체</button>
         <button class="grade-tab" data-grade="1">1학년</button>
@@ -680,11 +688,10 @@
         <div class="stat-box orange"><div class="s-num" id="a-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
         <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
-        <div class="stat-box gray"><div class="s-num" id="a-out-stat-school">0</div><div class="s-lbl">잔류</div></div>
       </div>
 
       <div class="out-add-card">
-        <div class="card-title">➕ 학생 추가 / 상태 변경</div>
+        <div class="card-title">🔍 학생 검색</div>
         <input type="text" id="a-out-search" placeholder="이름·학번·아이디 검색...">
         <div id="a-out-search-results" style="margin-top:6px"></div>
       </div>
@@ -700,7 +707,6 @@
         <button class="filter-btn" data-filter="out">외출 중</button>
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
-        <button class="filter-btn" data-filter="school">잔류</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -879,6 +885,30 @@
       <button id="btn-se-cancel" class="btn-outline">취소</button>
       <button id="btn-se-delete" style="padding:12px 14px;background:white;color:#c0392b;border:2px solid #c0392b;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">기록 삭제</button>
       <button id="btn-se-save" class="btn-blue">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 평일 외출/귀가/귀교 상태 수정 모달 (교사/관리자용) -->
+<div id="outing-edit-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <h3>✏️ 외출 상태 수정</h3>
+    <div class="modal-student" id="outing-edit-student">-</div>
+    <div class="sc-row" style="margin-bottom:12px">
+      <button class="sc-btn" id="oe-choice-out" onclick="window._oeSelect('out')">
+        <div class="sc-icon">🚶</div><div class="sc-label">외출</div>
+      </button>
+      <button class="sc-btn" id="oe-choice-home" onclick="window._oeSelect('home')">
+        <div class="sc-icon">🏠</div><div class="sc-label">귀가</div>
+      </button>
+      <button class="sc-btn" id="oe-choice-school" onclick="window._oeSelect('school')">
+        <div class="sc-icon">🏫</div><div class="sc-label">귀교</div>
+      </button>
+    </div>
+    <div class="modal-btns">
+      <button id="btn-oe-cancel" class="btn-outline">취소</button>
+      <button id="btn-oe-delete" style="padding:12px 14px;background:white;color:#c0392b;border:2px solid #c0392b;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">기록 삭제</button>
+      <button id="btn-oe-save" class="btn-blue">저장</button>
     </div>
   </div>
 </div>
@@ -1077,7 +1107,7 @@
     const sunday=isSunday(date);
     document.getElementById('s-mode-hint').textContent = sunday
       ? '🗓 일요일 — 귀교 확인'
-      : '🗓 평일 — 외출/귀가/잔류 입력';
+      : '🗓 평일 — 외출/귀가/귀교 입력';
     // 폼/완료 화면 전부 숨김
     document.getElementById('confirm-form-wrap').classList.add('hidden');
     document.getElementById('confirm-done').classList.add('hidden');
@@ -1091,7 +1121,7 @@
   }
 
   // ─────────────────────────────────────────
-  // 학생 — 평일 외출/귀가/잔류
+  // 학생 — 평일 외출/귀가/귀교
   // ─────────────────────────────────────────
   let _studentOutCtx={};
   function setupStudentOutingForm(user){
@@ -1117,7 +1147,7 @@
     ['home','out','school'].forEach(s=>{
       document.getElementById(`s-out-choice-${s}`).className='sc-btn';
     });
-    document.getElementById(`s-out-choice-${st}`).className=`sc-btn active-${st==='out'?'late':st==='home'?'ok':'absent'}`;
+    document.getElementById(`s-out-choice-${st}`).className=`sc-btn active-${st==='out'?'late':'ok'}`;
     _studentOutCtx.selected=st;
   }
   async function submitStudentOuting(user){
@@ -1165,7 +1195,7 @@
       document.getElementById(`s-out-choice-${s}`).className='sc-btn';
     });
     if(prefill?.status){
-      const cls=prefill.status==='out'?'late':prefill.status==='home'?'ok':'absent';
+      const cls=prefill.status==='out'?'late':'ok';
       document.getElementById(`s-out-choice-${prefill.status}`).className=`sc-btn active-${cls}`;
     }
     document.getElementById('s-out-reason').value=prefill?.reason||'';
@@ -1176,7 +1206,7 @@
     const cfg={
       home:   {icon:'🏠', text:'귀가 신청 완료', color:'#0c5460'},
       out:    {icon:'🚶', text:'외출 신청 완료', color:'#b8651d'},
-      school: {icon:'🏫', text:'잔류 등록 완료', color:'#383d41'},
+      school: {icon:'🏫', text:'귀교 등록 완료', color:'#2d6a4f'},
     }[data.status]||{icon:'✅',text:'제출 완료',color:'#1e3a5f'};
     document.getElementById('s-out-done-icon').textContent=cfg.icon;
     const doneText=document.getElementById('s-out-done-text');
@@ -1373,7 +1403,7 @@
     document.getElementById(`${p}-mode-sunday`).classList.toggle('hidden', !sunday);
     document.getElementById(`${p}-mode-weekday`).classList.toggle('hidden', sunday);
     const hint=document.getElementById(`${p}-mode-hint`);
-    if(hint) hint.textContent = sunday ? '🗓 일요일 — 귀교/늦음/미귀교 모드' : '🗓 평일 — 외출/귀가/잔류 모드';
+    if(hint) hint.textContent = sunday ? '🗓 일요일 — 귀교/늦음/미귀교 모드' : '🗓 평일 — 외출/귀가/귀교 모드';
   }
 
   async function loadStatus(p){
@@ -1492,6 +1522,29 @@
     }).join('');
   }
 
+  window._statusSearch=(p)=>{
+    const q=document.getElementById(`${p}-status-search`).value.trim().toLowerCase();
+    const resEl=document.getElementById(`${p}-status-search-results`);
+    if(!q){ resEl.innerHTML=''; return; }
+    const date=document.getElementById(`${p}-date`).value;
+    if(!date||!statusCache[p]){
+      resEl.innerHTML='<div style="color:#aaa;font-size:12px;padding:6px">날짜 선택 후 불러오기를 먼저 눌러주세요</div>';
+      return;
+    }
+    const matches=allStudents.filter(s=>
+      s.name.toLowerCase().includes(q)||
+      `${s.grade}학년 ${s.class}반 ${s.number}번`.includes(q)||
+      s.id.toLowerCase().includes(q)
+    ).slice(0,6);
+    if(!matches.length){ resEl.innerHTML='<div style="color:#aaa;font-size:12px;padding:6px">검색 결과 없음</div>'; return; }
+    resEl.innerHTML=matches.map(s=>`
+      <div class="out-search-result">
+        <span class="out-sr-name"><strong>${s.name}</strong> <span style="color:#666">${s.grade}학년 ${s.class}반 ${s.number}번</span></span>
+        <button class="out-status-btn school" onclick="window._openStatusEdit('${s.id}','${s.name}','${s.grade}학년 ${s.class}반 ${s.number}번','${date}','${p}')">상태 수정</button>
+      </div>
+    `).join('');
+  };
+
   function renderMissDash(p){
     const cache=statusCache[p]; if(!cache) return;
     const {confirmed,absences}=cache;
@@ -1570,6 +1623,7 @@
         btn.classList.add('active'); renderStatusTable(p);
       });
     });
+    document.getElementById(`${p}-status-search`).addEventListener('input',()=>window._statusSearch(p));
   }
 
   // ─────────────────────────────────────────
@@ -1590,14 +1644,12 @@
     const items=getOutingRows(c);
     const total=items.length;
     const outNow=items.filter(i=>i.status==='out'&&!i.returnedAt).length;
-    const back=items.filter(i=>i.status==='out'&&i.returnedAt).length;
+    const back=items.filter(i=>(i.status==='out'&&i.returnedAt)||i.status==='school').length;
     const home=items.filter(i=>i.status==='home').length;
-    const school=items.filter(i=>i.status==='school').length;
     document.getElementById(`${p}-out-stat-total`).textContent=total;
     document.getElementById(`${p}-out-stat-now`).textContent=outNow;
     document.getElementById(`${p}-out-stat-back`).textContent=back;
     document.getElementById(`${p}-out-stat-home`).textContent=home;
-    document.getElementById(`${p}-out-stat-school`).textContent=school;
   }
 
   function getOutingRows(c){
@@ -1618,18 +1670,18 @@
     let list=getOutingRows(c);
     if(grade) list=list.filter(i=>i.grade===grade);
     if(filter==='out')      list=list.filter(i=>i.status==='out'&&!i.returnedAt);
-    if(filter==='returned') list=list.filter(i=>i.status==='out'&&i.returnedAt);
+    if(filter==='returned') list=list.filter(i=>(i.status==='out'&&i.returnedAt)||i.status==='school');
     if(filter==='home')     list=list.filter(i=>i.status==='home');
-    if(filter==='school')   list=list.filter(i=>i.status==='school');
     list.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
     const tbody=document.getElementById(`${p}-out-tbody`);
     if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">데이터 없음</td></tr>'; return; }
     tbody.innerHTML=list.map(i=>{
       let badge='';
-      if(i.status==='out'&&i.returnedAt) badge='<span class="badge-returned">✓ 귀교</span>';
-      else if(i.status==='out')          badge='<span class="badge-out">🚶 외출 중</span>';
-      else if(i.status==='home')         badge='<span class="badge-home">🏠 귀가</span>';
-      else if(i.status==='school')       badge='<span class="badge-school">🏫 잔류</span>';
+      const editAttr=`onclick="window._openOutingEdit('${p}','${i.username}')" style="cursor:pointer" title="클릭하여 상태 수정"`;
+      if(i.status==='out'&&i.returnedAt) badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
+      else if(i.status==='out')          badge=`<span class="badge-out" ${editAttr}>🚶 외출 중</span>`;
+      else if(i.status==='home')         badge=`<span class="badge-home" ${editAttr}>🏠 귀가</span>`;
+      else if(i.status==='school')       badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
       const outTime=i.recordedAt?fmtTime(i.recordedAt):'-';
       const retTime=i.returnedAt?fmtTime(i.returnedAt):'-';
       const action=(i.status==='out'&&!i.returnedAt)
@@ -1669,6 +1721,41 @@
     c.items=c.items.filter(i=>i.username!==username);
     renderOutingStats(p); renderOutingTable(p);
   };
+  let _oeCtx={};
+  let _oeStatus=null;
+  window._oeSelect=(status)=>{
+    _oeStatus=status;
+    ['out','home','school'].forEach(s=>{
+      document.getElementById(`oe-choice-${s}`).className='sc-btn';
+    });
+    const cls=status==='out'?'late':'ok';
+    document.getElementById(`oe-choice-${status}`).className=`sc-btn active-${cls}`;
+  };
+  window._openOutingEdit=(p,username)=>{
+    const c=outingsCache[p]; if(!c) return;
+    const item=getOutingRows(c).find(i=>i.username===username); if(!item) return;
+    _oeCtx={p,username,isDefaultSchool:!!item.isDefaultSchool};
+    _oeStatus=item.status;
+    document.getElementById('outing-edit-student').textContent=`${item.name} — ${item.grade}학년 ${item.class}반 ${item.number}번`;
+    window._oeSelect(item.status);
+    document.getElementById('btn-oe-delete').classList.toggle('hidden', !!item.isDefaultSchool);
+    document.getElementById('outing-edit-modal').classList.remove('hidden');
+  };
+  document.getElementById('btn-oe-cancel').addEventListener('click',()=>{
+    document.getElementById('outing-edit-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-oe-delete').addEventListener('click',async()=>{
+    const {p,username}= _oeCtx;
+    if(!p||!username) return;
+    await window._outRemove(p,username);
+    document.getElementById('outing-edit-modal').classList.add('hidden');
+  });
+  document.getElementById('btn-oe-save').addEventListener('click',async()=>{
+    const {p,username}= _oeCtx;
+    if(!p||!username||!_oeStatus){ alert('상태를 선택해주세요.'); return; }
+    await window._outAdd(p,username,_oeStatus);
+    document.getElementById('outing-edit-modal').classList.add('hidden');
+  });
   window._outSearch=(p)=>{
     const q=document.getElementById(`${p}-out-search`).value.trim().toLowerCase();
     const resEl=document.getElementById(`${p}-out-search-results`);
@@ -1684,7 +1771,7 @@
         <span class="out-sr-name"><strong>${s.name}</strong> <span style="color:#666">${s.grade}학년 ${s.class}반 ${s.number}번</span></span>
         <button class="out-status-btn out" onclick="window._outAdd('${p}','${s.id}','out')">🚶 외출</button>
         <button class="out-status-btn home" onclick="window._outAdd('${p}','${s.id}','home')">🏠 귀가</button>
-        <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 잔류</button>
+        <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 귀교</button>
       </div>
     `).join('');
   };
@@ -1696,11 +1783,11 @@
       date:c.date, username, name:s.name, grade:s.grade, class:s.class, number:s.number,
       status, recordedAt: serverTimestamp(),
     };
-    if(existing && existing.returnedAt) data.returnedAt = existing.returnedAt;
+    data.returnedAt = status==='out' && existing?.status==='out' ? existing.returnedAt||null : null;
     await setDoc(doc(db,'outings',`${c.date}_${username}`), data, {merge:true});
     const localData={...data, recordedAt:{toDate:()=>new Date()}};
     if(existing){
-      Object.assign(existing, {status, recordedAt: localData.recordedAt});
+      Object.assign(existing, {status, recordedAt: localData.recordedAt, returnedAt: data.returnedAt});
     } else {
       c.items.push(localData);
     }
@@ -2169,7 +2256,7 @@
       getOutingRows(outingCache).forEach(i=>{
         const statusLabel=i.status==='out'
           ?(i.returnedAt?'귀교':'외출 중')
-          :i.status==='home'?'귀가':'잔류';
+          :i.status==='home'?'귀가':'귀교';
         rows.push([
           i.grade, i.class, i.number, i.name, statusLabel,
           i.recordedAt?fmtTime(i.recordedAt):'-',
