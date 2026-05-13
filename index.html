@@ -927,6 +927,11 @@
   const db  = getFirestore(app);
 
   // ─────────────────────────────────────────
+  // 모듈 공유 상태 (TDZ 회피를 위해 routeUser 호출보다 앞에 선언)
+  // ─────────────────────────────────────────
+  let allStudents=[], statusCache={}, outingsCache={};
+
+  // ─────────────────────────────────────────
   // HELPERS
   // ─────────────────────────────────────────
   async function sha256(str) {
@@ -1302,8 +1307,6 @@
   // ─────────────────────────────────────────
   // 공유: 귀교 현황
   // ─────────────────────────────────────────
-  let allStudents=[], statusCache={};
-
   async function ensureStudents(){
     if(allStudents.length) return;
     try{
@@ -1508,10 +1511,8 @@
   }
 
   // ─────────────────────────────────────────
-  // 외출 현황 (교사·관리자 공용)
+  // 외출 현황 (교사·관리자 공용) — outingsCache는 모듈 상단에서 선언됨
   // ─────────────────────────────────────────
-  let outingsCache={}; // {p: {date, items: [...]}}
-
   async function loadOutings(p){
     const date=document.getElementById(`${p}-out-date`).value;
     if(!date){ alert('날짜를 선택해주세요.'); return; }
