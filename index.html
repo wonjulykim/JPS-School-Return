@@ -564,6 +564,7 @@
         <div class="stat-box orange"><div class="s-num" id="t-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
         <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+        <div class="stat-box red"><div class="s-num" id="t-out-stat-notarrived">0</div><div class="s-lbl">미도착</div></div>
       </div>
 
       <div class="out-add-card">
@@ -583,6 +584,7 @@
         <button class="filter-btn" data-filter="out">외출 중</button>
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
+        <button class="filter-btn" data-filter="notarrived">미도착</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -688,6 +690,7 @@
         <div class="stat-box orange"><div class="s-num" id="a-out-stat-now">0</div><div class="s-lbl">외출 중</div></div>
         <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
+        <div class="stat-box red"><div class="s-num" id="a-out-stat-notarrived">0</div><div class="s-lbl">미도착</div></div>
       </div>
 
       <div class="out-add-card">
@@ -707,6 +710,7 @@
         <button class="filter-btn" data-filter="out">외출 중</button>
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
+        <button class="filter-btn" data-filter="notarrived">미도착</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -1643,13 +1647,16 @@
     const c=outingsCache[p]; if(!c) return;
     const items=getOutingRows(c);
     const total=items.length;
-    const outNow=items.filter(i=>i.status==='out'&&!i.returnedAt).length;
-    const back=items.filter(i=>(i.status==='out'&&i.returnedAt)||i.status==='school').length;
-    const home=items.filter(i=>i.status==='home').length;
+    const notArrived=items.filter(i=>i.isDefaultSchool).length;
+    const outNow=items.filter(i=>!i.isDefaultSchool&&i.status==='out'&&!i.returnedAt).length;
+    const back=items.filter(i=>!i.isDefaultSchool&&((i.status==='out'&&i.returnedAt)||i.status==='school')).length;
+    const home=items.filter(i=>!i.isDefaultSchool&&i.status==='home').length;
     document.getElementById(`${p}-out-stat-total`).textContent=total;
     document.getElementById(`${p}-out-stat-now`).textContent=outNow;
     document.getElementById(`${p}-out-stat-back`).textContent=back;
     document.getElementById(`${p}-out-stat-home`).textContent=home;
+    const naEl=document.getElementById(`${p}-out-stat-notarrived`);
+    if(naEl) naEl.textContent=notArrived;
   }
 
   function getOutingRows(c){
@@ -1658,7 +1665,7 @@
       const item=itemMap.get(s.id);
       return item || {
         date:c.date, username:s.id, name:s.name, grade:s.grade, class:s.class, number:s.number,
-        status:'school', recordedAt:null, returnedAt:null, isDefaultSchool:true,
+        status:'notarrived', recordedAt:null, returnedAt:null, isDefaultSchool:true,
       };
     });
   }
@@ -1669,16 +1676,18 @@
     const grade=parseInt(document.querySelector(`#${p}-out-grade .grade-tab.active`)?.dataset.grade??0);
     let list=getOutingRows(c);
     if(grade) list=list.filter(i=>i.grade===grade);
-    if(filter==='out')      list=list.filter(i=>i.status==='out'&&!i.returnedAt);
-    if(filter==='returned') list=list.filter(i=>(i.status==='out'&&i.returnedAt)||i.status==='school');
-    if(filter==='home')     list=list.filter(i=>i.status==='home');
+    if(filter==='out')        list=list.filter(i=>!i.isDefaultSchool&&i.status==='out'&&!i.returnedAt);
+    if(filter==='returned')   list=list.filter(i=>!i.isDefaultSchool&&((i.status==='out'&&i.returnedAt)||i.status==='school'));
+    if(filter==='home')       list=list.filter(i=>!i.isDefaultSchool&&i.status==='home');
+    if(filter==='notarrived') list=list.filter(i=>i.isDefaultSchool);
     list.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
     const tbody=document.getElementById(`${p}-out-tbody`);
     if(!list.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">데이터 없음</td></tr>'; return; }
     tbody.innerHTML=list.map(i=>{
       let badge='';
       const editAttr=`onclick="window._openOutingEdit('${p}','${i.username}')" style="cursor:pointer" title="클릭하여 상태 수정"`;
-      if(i.status==='out'&&i.returnedAt) badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
+      if(i.isDefaultSchool)              badge=`<span class="badge-no" ${editAttr}>⏱ 미도착</span>`;
+      else if(i.status==='out'&&i.returnedAt) badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
       else if(i.status==='out')          badge=`<span class="badge-out" ${editAttr}>🚶 외출 중</span>`;
       else if(i.status==='home')         badge=`<span class="badge-home" ${editAttr}>🏠 귀가</span>`;
       else if(i.status==='school')       badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
@@ -2254,9 +2263,11 @@
       if(!outingCache){ alert('데이터를 먼저 불러와주세요.'); return; }
       const rows=[['학년','반','번호','이름','상태','외출 시간','귀교 시간','사유','전화번호']];
       getOutingRows(outingCache).forEach(i=>{
-        const statusLabel=i.status==='out'
-          ?(i.returnedAt?'귀교':'외출 중')
-          :i.status==='home'?'귀가':'귀교';
+        const statusLabel=i.isDefaultSchool
+          ?'미도착'
+          :i.status==='out'
+            ?(i.returnedAt?'귀교':'외출 중')
+            :i.status==='home'?'귀가':'귀교';
         rows.push([
           i.grade, i.class, i.number, i.name, statusLabel,
           i.recordedAt?fmtTime(i.recordedAt):'-',
