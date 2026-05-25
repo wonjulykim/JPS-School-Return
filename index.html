@@ -230,6 +230,8 @@
     .out-status-btn.out  { background: #ffe8c4; color: #b8651d; }
     .out-status-btn.home { background: #d1ecf1; color: #0c5460; }
     .out-status-btn.school { background: #e2e3e5; color: #383d41; }
+    .out-status-btn.late { background: #fff3cd; color: #856404; }
+    .out-status-btn.absent { background: #e8d5f5; color: #6a0dad; }
 
     /* MODAL */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
@@ -476,7 +478,19 @@
             <div class="sc-sub">학교에 있음</div>
           </button>
         </div>
-        <textarea id="s-out-reason" placeholder="사유 (선택)" style="min-height:50px;margin-top:4px"></textarea>
+        <div class="sc-row" style="grid-template-columns:1fr 1fr;margin-top:8px">
+          <button class="sc-btn" id="s-out-choice-late">
+            <div class="sc-icon">⏰</div>
+            <div class="sc-label">지각</div>
+            <div class="sc-sub">늦게 도착</div>
+          </button>
+          <button class="sc-btn" id="s-out-choice-absent">
+            <div class="sc-icon">🚫</div>
+            <div class="sc-label">미귀교</div>
+            <div class="sc-sub">학교 안 옴</div>
+          </button>
+        </div>
+        <textarea id="s-out-reason" placeholder="사유 (선택)" style="min-height:50px;margin-top:8px"></textarea>
         <button id="s-out-submit" class="btn-confirm" style="margin-top:8px;display:block;margin-left:auto;margin-right:auto;background:linear-gradient(135deg,#e67e22,#f39c12);box-shadow:0 6px 20px rgba(230,126,34,0.3)">제출</button>
       </div>
     </div>
@@ -565,6 +579,8 @@
         <div class="stat-box green"><div class="s-num" id="t-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="t-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
         <div class="stat-box red"><div class="s-num" id="t-out-stat-notarrived">0</div><div class="s-lbl">미도착</div></div>
+        <div class="stat-box"><div class="s-num" id="t-out-stat-late" style="color:#e67e22">0</div><div class="s-lbl">지각</div></div>
+        <div class="stat-box purple"><div class="s-num" id="t-out-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
       </div>
 
       <div class="out-add-card">
@@ -585,6 +601,8 @@
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
         <button class="filter-btn" data-filter="notarrived">미도착</button>
+        <button class="filter-btn" data-filter="late">지각</button>
+        <button class="filter-btn" data-filter="absent">미귀교</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -691,6 +709,8 @@
         <div class="stat-box green"><div class="s-num" id="a-out-stat-back">0</div><div class="s-lbl">귀교 완료</div></div>
         <div class="stat-box blue"><div class="s-num" id="a-out-stat-home">0</div><div class="s-lbl">귀가</div></div>
         <div class="stat-box red"><div class="s-num" id="a-out-stat-notarrived">0</div><div class="s-lbl">미도착</div></div>
+        <div class="stat-box"><div class="s-num" id="a-out-stat-late" style="color:#e67e22">0</div><div class="s-lbl">지각</div></div>
+        <div class="stat-box purple"><div class="s-num" id="a-out-stat-absent">0</div><div class="s-lbl">미귀교</div></div>
       </div>
 
       <div class="out-add-card">
@@ -711,6 +731,8 @@
         <button class="filter-btn" data-filter="returned">귀교</button>
         <button class="filter-btn" data-filter="home">귀가</button>
         <button class="filter-btn" data-filter="notarrived">미도착</button>
+        <button class="filter-btn" data-filter="late">지각</button>
+        <button class="filter-btn" data-filter="absent">미귀교</button>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -898,7 +920,7 @@
   <div class="modal-box">
     <h3>✏️ 외출 상태 수정</h3>
     <div class="modal-student" id="outing-edit-student">-</div>
-    <div class="sc-row" style="margin-bottom:12px">
+    <div class="sc-row" style="margin-bottom:8px">
       <button class="sc-btn" id="oe-choice-out" onclick="window._oeSelect('out')">
         <div class="sc-icon">🚶</div><div class="sc-label">외출</div>
       </button>
@@ -907,6 +929,14 @@
       </button>
       <button class="sc-btn" id="oe-choice-school" onclick="window._oeSelect('school')">
         <div class="sc-icon">🏫</div><div class="sc-label">귀교</div>
+      </button>
+    </div>
+    <div class="sc-row" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
+      <button class="sc-btn" id="oe-choice-late" onclick="window._oeSelect('late')">
+        <div class="sc-icon">⏰</div><div class="sc-label">지각</div>
+      </button>
+      <button class="sc-btn" id="oe-choice-absent" onclick="window._oeSelect('absent')">
+        <div class="sc-icon">🚫</div><div class="sc-label">미귀교</div>
       </button>
     </div>
     <div class="modal-btns">
@@ -1128,9 +1158,16 @@
   // 학생 — 평일 외출/귀가/귀교
   // ─────────────────────────────────────────
   let _studentOutCtx={};
+  const STUDENT_OUT_STATUSES=['home','out','school','late','absent'];
+  function outingChoiceClass(st){
+    if(st==='out'||st==='late') return 'late';
+    if(st==='absent') return 'absent';
+    return 'ok';
+  }
   function setupStudentOutingForm(user){
-    ['home','out','school'].forEach(st=>{
-      document.getElementById(`s-out-choice-${st}`).onclick=()=>selectStudentOutingChoice(st);
+    STUDENT_OUT_STATUSES.forEach(st=>{
+      const btn=document.getElementById(`s-out-choice-${st}`);
+      if(btn) btn.onclick=()=>selectStudentOutingChoice(st);
     });
     document.getElementById('s-out-submit').onclick=()=>submitStudentOuting(user);
     document.getElementById('s-out-edit-btn').onclick=()=>{
@@ -1143,15 +1180,22 @@
         showStudentOutingDone(_studentOutCtx.data);
         return;
       }
-      await updateDoc(doc(db,'outings',`${date}_${user.username}`),{returnedAt:serverTimestamp()});
+      const docId=`${date}_${user.username}`;
+      const errs=[];
+      try{ await updateDoc(doc(db,'outings',docId),{returnedAt:serverTimestamp()}); }
+      catch(e){ errs.push('outings: '+e.message); }
+      try{ await setDoc(doc(db,'confirmations',docId),{returnedAt:serverTimestamp()},{merge:true}); }
+      catch(e){ errs.push('confirmations: '+e.message); }
+      if(errs.length===2){ alert('귀교 표시 오류: '+errs.join(' / ')); return; }
       await loadStudentOuting(user, date);
     };
   }
   function selectStudentOutingChoice(st){
-    ['home','out','school'].forEach(s=>{
-      document.getElementById(`s-out-choice-${s}`).className='sc-btn';
+    STUDENT_OUT_STATUSES.forEach(s=>{
+      const btn=document.getElementById(`s-out-choice-${s}`);
+      if(btn) btn.className='sc-btn';
     });
-    document.getElementById(`s-out-choice-${st}`).className=`sc-btn active-${st==='out'?'late':'ok'}`;
+    document.getElementById(`s-out-choice-${st}`).className=`sc-btn active-${outingChoiceClass(st)}`;
     _studentOutCtx.selected=st;
   }
   async function submitStudentOuting(user){
@@ -1172,7 +1216,21 @@
       showStudentOutingDone(_studentOutCtx.data);
       return;
     }
-    await setDoc(doc(db,'outings',`${date}_${user.username}`), data, {merge:true});
+    const docId=`${date}_${user.username}`;
+    const submitBtn=document.getElementById('s-out-submit');
+    submitBtn.disabled=true;
+    const errs=[];
+    let outOk=false, confOk=false;
+    try{
+      await setDoc(doc(db,'outings',docId), data, {merge:true});
+      outOk=true;
+    }catch(e){ errs.push('outings: '+e.message); }
+    try{
+      await setDoc(doc(db,'confirmations',docId), data, {merge:true});
+      confOk=true;
+    }catch(e){ errs.push('confirmations: '+e.message); }
+    submitBtn.disabled=false;
+    if(!outOk && !confOk){ alert('제출 오류: '+errs.join(' / ')); return; }
     await loadStudentOuting(user, date);
   }
   async function loadStudentOuting(user, date){
@@ -1182,10 +1240,21 @@
       showStudentOutingForm(null);
       return;
     }
-    const snap=await getDoc(doc(db,'outings',`${date}_${user.username}`));
-    if(snap.exists()){
-      _studentOutCtx.data=snap.data();
-      showStudentOutingDone(_studentOutCtx.data);
+    const docId=`${date}_${user.username}`;
+    let data=null;
+    try{
+      const snap=await getDoc(doc(db,'outings',docId));
+      if(snap.exists()) data=snap.data();
+    }catch{}
+    if(!data){
+      try{
+        const snap=await getDoc(doc(db,'confirmations',docId));
+        if(snap.exists()) data=snap.data();
+      }catch{}
+    }
+    if(data){
+      _studentOutCtx.data=data;
+      showStudentOutingDone(data);
     } else {
       _studentOutCtx.data=null;
       showStudentOutingForm(null);
@@ -1195,12 +1264,12 @@
     document.getElementById('s-out-form-wrap').classList.remove('hidden');
     document.getElementById('s-out-done').classList.add('hidden');
     _studentOutCtx.selected=prefill?.status||null;
-    ['home','out','school'].forEach(s=>{
-      document.getElementById(`s-out-choice-${s}`).className='sc-btn';
+    STUDENT_OUT_STATUSES.forEach(s=>{
+      const btn=document.getElementById(`s-out-choice-${s}`);
+      if(btn) btn.className='sc-btn';
     });
-    if(prefill?.status){
-      const cls=prefill.status==='out'?'late':'ok';
-      document.getElementById(`s-out-choice-${prefill.status}`).className=`sc-btn active-${cls}`;
+    if(prefill?.status && STUDENT_OUT_STATUSES.includes(prefill.status)){
+      document.getElementById(`s-out-choice-${prefill.status}`).className=`sc-btn active-${outingChoiceClass(prefill.status)}`;
     }
     document.getElementById('s-out-reason').value=prefill?.reason||'';
   }
@@ -1211,6 +1280,8 @@
       home:   {icon:'🏠', text:'귀가 신청 완료', color:'#0c5460'},
       out:    {icon:'🚶', text:'외출 신청 완료', color:'#b8651d'},
       school: {icon:'🏫', text:'귀교 등록 완료', color:'#2d6a4f'},
+      late:   {icon:'⏰', text:'지각 신청 완료', color:'#e67e22'},
+      absent: {icon:'🚫', text:'미귀교 신청 완료', color:'#c0392b'},
     }[data.status]||{icon:'✅',text:'제출 완료',color:'#1e3a5f'};
     document.getElementById('s-out-done-icon').textContent=cfg.icon;
     const doneText=document.getElementById('s-out-done-text');
@@ -1633,12 +1704,39 @@
   // ─────────────────────────────────────────
   // 외출 현황 (교사·관리자 공용) — outingsCache는 모듈 상단에서 선언됨
   // ─────────────────────────────────────────
+  const WEEKDAY_STATUSES=['home','out','school','late','absent'];
+  function normalizeWeekdayItem(d){
+    // confirmations 컬렉션의 일요일 'ok' 상태는 무시 (평일 뷰에서는 의미 없음)
+    // 그 외 home/out/school/late/absent 는 그대로 사용
+    if(!WEEKDAY_STATUSES.includes(d.status)) return null;
+    return d;
+  }
   async function loadOutings(p, dateOverride){
     const date = dateOverride || document.getElementById(`${p}-date`).value;
     if(!date){ alert('날짜를 선택해주세요.'); return; }
     await ensureStudents();
-    const snap=await getDocs(query(collection(db,'outings'),where('date','==',date)));
-    const items=snap.docs.map(d=>d.data());
+    const [outSnap, confSnap] = await Promise.all([
+      getDocs(query(collection(db,'outings'),where('date','==',date))),
+      getDocs(query(collection(db,'confirmations'),where('date','==',date))),
+    ]);
+    const itemMap=new Map();
+    outSnap.docs.forEach(d=>{
+      const data=d.data();
+      const n=normalizeWeekdayItem(data);
+      if(n) itemMap.set(n.username, n);
+    });
+    confSnap.docs.forEach(d=>{
+      const data=d.data();
+      const n=normalizeWeekdayItem(data);
+      if(!n) return;
+      // confirmations가 더 최신일 가능성 → recordedAt 비교해서 최신 데이터로 갱신
+      const prev=itemMap.get(n.username);
+      if(!prev) { itemMap.set(n.username, n); return; }
+      const prevT=prev.recordedAt?.toMillis?.()||0;
+      const newT=n.recordedAt?.toMillis?.()||0;
+      if(newT>=prevT) itemMap.set(n.username, n);
+    });
+    const items=Array.from(itemMap.values());
     outingsCache[p]={date,items};
     renderOutingStats(p); renderOutingTable(p);
   }
@@ -1651,12 +1749,18 @@
     const outNow=items.filter(i=>!i.isDefaultSchool&&i.status==='out'&&!i.returnedAt).length;
     const back=items.filter(i=>!i.isDefaultSchool&&((i.status==='out'&&i.returnedAt)||i.status==='school')).length;
     const home=items.filter(i=>!i.isDefaultSchool&&i.status==='home').length;
+    const late=items.filter(i=>!i.isDefaultSchool&&i.status==='late').length;
+    const absent=items.filter(i=>!i.isDefaultSchool&&i.status==='absent').length;
     document.getElementById(`${p}-out-stat-total`).textContent=total;
     document.getElementById(`${p}-out-stat-now`).textContent=outNow;
     document.getElementById(`${p}-out-stat-back`).textContent=back;
     document.getElementById(`${p}-out-stat-home`).textContent=home;
     const naEl=document.getElementById(`${p}-out-stat-notarrived`);
     if(naEl) naEl.textContent=notArrived;
+    const lateEl=document.getElementById(`${p}-out-stat-late`);
+    if(lateEl) lateEl.textContent=late;
+    const absentEl=document.getElementById(`${p}-out-stat-absent`);
+    if(absentEl) absentEl.textContent=absent;
   }
 
   function getOutingRows(c){
@@ -1679,6 +1783,8 @@
     if(filter==='out')        list=list.filter(i=>!i.isDefaultSchool&&i.status==='out'&&!i.returnedAt);
     if(filter==='returned')   list=list.filter(i=>!i.isDefaultSchool&&((i.status==='out'&&i.returnedAt)||i.status==='school'));
     if(filter==='home')       list=list.filter(i=>!i.isDefaultSchool&&i.status==='home');
+    if(filter==='late')       list=list.filter(i=>!i.isDefaultSchool&&i.status==='late');
+    if(filter==='absent')     list=list.filter(i=>!i.isDefaultSchool&&i.status==='absent');
     if(filter==='notarrived') list=list.filter(i=>i.isDefaultSchool);
     list.sort((a,b)=>a.grade-b.grade||a.class-b.class||a.number-b.number);
     const tbody=document.getElementById(`${p}-out-tbody`);
@@ -1691,6 +1797,8 @@
       else if(i.status==='out')          badge=`<span class="badge-out" ${editAttr}>🚶 외출 중</span>`;
       else if(i.status==='home')         badge=`<span class="badge-home" ${editAttr}>🏠 귀가</span>`;
       else if(i.status==='school')       badge=`<span class="badge-returned" ${editAttr}>✓ 귀교</span>`;
+      else if(i.status==='late')         badge=`<span class="badge-late" ${editAttr}>⏰ 지각</span>`;
+      else if(i.status==='absent')       badge=`<span class="badge-absent" ${editAttr}>🚫 미귀교</span>`;
       const outTime=i.recordedAt?fmtTime(i.recordedAt):'-';
       const retTime=i.returnedAt?fmtTime(i.returnedAt):'-';
       const action=(i.status==='out'&&!i.returnedAt)
@@ -1709,24 +1817,43 @@
     }).join('');
   }
 
+  async function _outingsDualUpdate(docId, fields){
+    const errs=[];
+    try{ await setDoc(doc(db,'outings',docId), fields, {merge:true}); }
+    catch(e){ errs.push('outings: '+e.message); }
+    try{ await setDoc(doc(db,'confirmations',docId), fields, {merge:true}); }
+    catch(e){ errs.push('confirmations: '+e.message); }
+    if(errs.length===2) throw new Error(errs.join(' / '));
+  }
+  async function _outingsDualDelete(docId){
+    const errs=[];
+    try{ await deleteDoc(doc(db,'outings',docId)); }
+    catch(e){ errs.push('outings: '+e.message); }
+    try{ await deleteDoc(doc(db,'confirmations',docId)); }
+    catch(e){ errs.push('confirmations: '+e.message); }
+    if(errs.length===2) throw new Error(errs.join(' / '));
+  }
   window._outReturn=async(p,username)=>{
     const c=outingsCache[p]; if(!c) return;
     const item=c.items.find(i=>i.username===username); if(!item) return;
-    await updateDoc(doc(db,'outings',`${c.date}_${username}`),{returnedAt:serverTimestamp()});
+    try{ await _outingsDualUpdate(`${c.date}_${username}`,{returnedAt:serverTimestamp()}); }
+    catch(e){ alert('귀교 표시 오류: '+e.message); return; }
     item.returnedAt={toDate:()=>new Date()};
     renderOutingStats(p); renderOutingTable(p);
   };
   window._outUndoReturn=async(p,username)=>{
     const c=outingsCache[p]; if(!c) return;
     const item=c.items.find(i=>i.username===username); if(!item) return;
-    await updateDoc(doc(db,'outings',`${c.date}_${username}`),{returnedAt:null});
+    try{ await _outingsDualUpdate(`${c.date}_${username}`,{returnedAt:null}); }
+    catch(e){ alert('취소 오류: '+e.message); return; }
     item.returnedAt=null;
     renderOutingStats(p); renderOutingTable(p);
   };
   window._outRemove=async(p,username)=>{
     const c=outingsCache[p]; if(!c) return;
     if(!confirm('이 학생을 외출 명단에서 제거할까요?')) return;
-    await deleteDoc(doc(db,'outings',`${c.date}_${username}`));
+    try{ await _outingsDualDelete(`${c.date}_${username}`); }
+    catch(e){ alert('제거 오류: '+e.message); return; }
     c.items=c.items.filter(i=>i.username!==username);
     renderOutingStats(p); renderOutingTable(p);
   };
@@ -1734,11 +1861,14 @@
   let _oeStatus=null;
   window._oeSelect=(status)=>{
     _oeStatus=status;
-    ['out','home','school'].forEach(s=>{
-      document.getElementById(`oe-choice-${s}`).className='sc-btn';
+    ['out','home','school','late','absent'].forEach(s=>{
+      const btn=document.getElementById(`oe-choice-${s}`);
+      if(btn) btn.className='sc-btn';
     });
-    const cls=status==='out'?'late':'ok';
-    document.getElementById(`oe-choice-${status}`).className=`sc-btn active-${cls}`;
+    const btn=document.getElementById(`oe-choice-${status}`);
+    if(!btn){ _oeStatus=null; return; }
+    const cls=(status==='out'||status==='late')?'late':(status==='absent'?'absent':'ok');
+    btn.className=`sc-btn active-${cls}`;
   };
   window._openOutingEdit=(p,username)=>{
     const c=outingsCache[p]; if(!c) return;
@@ -1781,6 +1911,8 @@
         <button class="out-status-btn out" onclick="window._outAdd('${p}','${s.id}','out')">🚶 외출</button>
         <button class="out-status-btn home" onclick="window._outAdd('${p}','${s.id}','home')">🏠 귀가</button>
         <button class="out-status-btn school" onclick="window._outAdd('${p}','${s.id}','school')">🏫 귀교</button>
+        <button class="out-status-btn late" onclick="window._outAdd('${p}','${s.id}','late')">⏰ 지각</button>
+        <button class="out-status-btn absent" onclick="window._outAdd('${p}','${s.id}','absent')">🚫 미귀교</button>
       </div>
     `).join('');
   };
@@ -1793,7 +1925,8 @@
       status, recordedAt: serverTimestamp(),
     };
     data.returnedAt = status==='out' && existing?.status==='out' ? existing.returnedAt||null : null;
-    await setDoc(doc(db,'outings',`${c.date}_${username}`), data, {merge:true});
+    try{ await _outingsDualUpdate(`${c.date}_${username}`, data); }
+    catch(e){ alert('상태 변경 오류: '+e.message); return; }
     const localData={...data, recordedAt:{toDate:()=>new Date()}};
     if(existing){
       Object.assign(existing, {status, recordedAt: localData.recordedAt, returnedAt: data.returnedAt});
@@ -2267,7 +2400,10 @@
           ?'미도착'
           :i.status==='out'
             ?(i.returnedAt?'귀교':'외출 중')
-            :i.status==='home'?'귀가':'귀교';
+            :i.status==='home'?'귀가'
+            :i.status==='late'?'지각'
+            :i.status==='absent'?'미귀교'
+            :'귀교';
         rows.push([
           i.grade, i.class, i.number, i.name, statusLabel,
           i.recordedAt?fmtTime(i.recordedAt):'-',
