@@ -330,7 +330,7 @@
   <div class="login-logo">🏫</div>
   <p class="login-school">지평선중학교</p>
   <h1 class="login-title">귀교 확인</h1>
-  <p class="login-sub">매주 일요일 귀교 확인 시스템</p>
+  <p class="login-sub">매일 귀교 확인 시스템</p>
   <div class="login-card">
     <h3>🔐 로그인</h3>
     <div class="login-field">
@@ -1008,9 +1008,8 @@
   }
   function getTodayDate(){ return fmtDate(new Date()); }
   function isSunday(dateStr){
-    if(!dateStr) return false;
-    const [y,m,d]=dateStr.split('-').map(Number);
-    return new Date(y, m-1, d).getDay()===0;
+    // 평일도 주말과 동일한 귀교/지각/미귀교 형식을 사용하도록 항상 true 반환
+    return !!dateStr;
   }
   function fmtDate(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1138,20 +1137,13 @@
   }
 
   async function loadStudentForDate(user, date){
-    const sunday=isSunday(date);
-    document.getElementById('s-mode-hint').textContent = sunday
-      ? '🗓 일요일 — 귀교 확인'
-      : '🗓 평일 — 외출/귀가/귀교 입력';
+    document.getElementById('s-mode-hint').textContent = '🗓 귀교 확인';
     // 폼/완료 화면 전부 숨김
     document.getElementById('confirm-form-wrap').classList.add('hidden');
     document.getElementById('confirm-done').classList.add('hidden');
     document.getElementById('s-out-form-wrap').classList.add('hidden');
     document.getElementById('s-out-done').classList.add('hidden');
-    if(sunday){
-      await loadStudentConfirmation(user, date);
-    } else {
-      await loadStudentOuting(user, date);
-    }
+    await loadStudentConfirmation(user, date);
   }
 
   // ─────────────────────────────────────────
@@ -1478,7 +1470,7 @@
     document.getElementById(`${p}-mode-sunday`).classList.toggle('hidden', !sunday);
     document.getElementById(`${p}-mode-weekday`).classList.toggle('hidden', sunday);
     const hint=document.getElementById(`${p}-mode-hint`);
-    if(hint) hint.textContent = sunday ? '🗓 일요일 — 귀교/늦음/미귀교 모드' : '🗓 평일 — 외출/귀가/귀교 모드';
+    if(hint) hint.textContent = '🗓 귀교/늦음/미귀교 모드';
   }
 
   async function loadStatus(p){
